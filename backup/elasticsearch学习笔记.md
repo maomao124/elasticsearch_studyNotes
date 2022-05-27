@@ -2562,3 +2562,278 @@ GET /_analyze
 
 ## 创建映射
 
+Text：文本类型
+
+1）analyzer
+
+通过analyzer属性指定分词器。
+
+上边指定了analyzer是指在索引和搜索都使用english，如果单独想定义搜索时使用的分词器则可以通过search_analyzer属性。
+
+2）index
+
+index属性指定是否索引。
+
+默认为index=true，即要进行索引，只有进行索引才可以从索引库搜索到。
+
+但是也有一些内容不需要索引，比如：商品图片地址只被用来展示图片，不进行搜索图片，此时可以将index设置为false。
+
+删除索引，重新创建映射，将pic的index设置为false，尝试根据pic去搜索，结果搜索不到数据。
+
+3）store
+
+是否在source之外存储，每个文档索引后会在 ES中保存一份原始文档，存放在"_source"中，一般情况下不需要设置store为true，因为在_source中已经有一份原始文档了。
+
+
+
+创建映射：
+
+```json
+PUT book/_mapping
+{
+		"properties": {
+           "name": {
+                  "type": "text"
+            },
+           "description": 
+            {
+              "type": "text",
+              "analyzer":"english",
+              "search_analyzer":"english"
+           },
+           "pic":{
+             "type":"text",
+             "index":false
+           },
+           "studymodel":{
+             "type":"text"
+           }
+    }
+}
+```
+
+
+
+keyword关键字字段：
+
+keyword字段的索引时是不进行分词的，比如：邮政编码、手机号码、身份证等。keyword字段通常用于过虑、排序、聚合等。
+
+
+
+
+
+日期类型不用设置分词器。
+
+通常日期类型的字段用于排序。
+
+```json
+{
+
+   "properties": {
+
+       "timestamp": {
+
+         "type":   "date",
+
+         "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
+
+        }
+
+     }
+
+}
+```
+
+
+
+
+
+## 修改映射
+
+只能创建index时手动建立mapping，或者新增field mapping，但是不能update field mapping。
+
+因为已有数据按照映射早已分词存储好。
+
+## 删除映射
+
+通过删除索引来删除映射。
+
+DELETE /book
+
+
+
+## 复杂数据类型
+
+* multivalue field：
+
+{ "tags": [ "tag1", "tag2" ]}
+
+* empty field：
+
+null，[]，[null]
+
+* object field：
+
+```json
+{
+  "address": {
+    "country": "china",
+    "province": "guangdong",
+    "city": "guangzhou"
+  },
+  "name": "jack",
+  "age": 27,
+  "join_date": "2019-01-01"
+}
+```
+
+address：object类型
+
+
+
+## dynamic mapping
+
+true：遇到陌生字段，就进行dynamic mapping
+
+false：新检测到的字段将被忽略。这些字段将不会被索引，因此将无法搜索，但仍将出现在返回点击的源字段中。这些字段不会添加到映射中，必须显式添加新字段。
+
+strict：遇到陌生字段，就报错
+
+```json
+PUT /my_index
+{
+    "mappings": {
+      "dynamic": "strict",
+       "properties": {
+        "title": {
+          "type": "text"
+        },
+        "address": {
+          "type": "object",
+          "dynamic": "true"
+        }
+	    }
+    }
+}
+```
+
+
+
+
+
+# 索引Index
+
+创建索引：
+
+```json
+PUT /index
+{
+    "settings": {},
+    "mappings": {
+       "properties" : {
+            "field1" : { "type" : "text" }
+        }
+    },
+    "aliases": {
+    	"default_index": {}
+  } 
+}
+```
+
+修改副本数：
+
+```json
+PUT /my_index/_settings
+{
+    "index" : {
+        "number_of_replicas" : 2
+    }
+}
+```
+
+
+
+删除索引
+
+DELETE /my_index
+
+DELETE /index_one,index_two
+
+DELETE /index_*
+
+DELETE /_all
+
+
+
+
+
+# 中文分词器 IK分词器
+
+下载地址：https://github.com/medcl/elasticsearch-analysis-ik/releases
+
+## ik分词器的使用
+
+存储时，使用ik_max_word，搜索时，使用ik_smart
+
+```json
+PUT /my_index 
+{
+  "mappings": {
+      "properties": {
+        "text": {
+          "type": "text",
+          "analyzer": "ik_max_word",
+          "search_analyzer": "ik_smart"
+        }
+      }
+  }
+}
+```
+
+
+
+## ik配置文件
+
+ik配置文件地址：es/plugins/ik/config目录
+
+ 
+
+IKAnalyzer.cfg.xml：用来配置自定义词库
+
+main.dic：ik原生内置的中文词库，总共有27万多条，只要是这些单词，都会被分在一起
+
+preposition.dic: 介词
+
+quantifier.dic：放了一些单位相关的词，量词
+
+suffix.dic：放了一些后缀
+
+surname.dic：中国的姓氏
+
+stopword.dic：英文停用词
+
+
+
+## 自定义词库
+
+自己建立词库：每年都会涌现一些特殊的流行词，网红，蓝瘦香菇，喊麦，鬼畜，一般不会在ik的原生词典里
+
+自己补充自己的最新的词语，到ik的词库里面
+
+IKAnalyzer.cfg.xml：ext_dict，创建mydict.dic。
+
+补充自己的词语，然后需要重启es，才能生效
+
+
+
+
+
+# java api 实现索引管理
+
+
+
+## 创建索引
+
+```java
+```
+
