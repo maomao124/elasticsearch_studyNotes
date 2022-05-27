@@ -4591,5 +4591,1256 @@ GET /book/_search
 语法：
 
 ```json
+GET /{index}/_search
+{
+  "query": {
+    "match_all": {}
+  },
+  "from": 从哪一条开始分页,
+  "size": 页大小
+}
 ```
+
+
+
+```json
+GET /book/_search
+{
+  "query": {
+    "match_all": {}
+  },
+  "from": 1,
+  "size": 2
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 4,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+### 指定返回字段
+
+语法：
+
+```json
+GET /{index}/_search
+{
+  "query": {
+    "match_all": {}
+  },
+  "_source": ["字段名","字段名"...]
+}
+```
+
+
+
+```json
+GET /book/_search
+{
+  "query": {
+    "match_all": {}
+  },
+  "_source": ["name","price"]
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 4,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 68.6,
+          "name" : "java编程思想"
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 78.6,
+          "name" : "spring开发基础"
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 68.6,
+          "name" : "java编程思想"
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 68.6,
+          "name" : "java编程思想"
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+### 多搜索条件
+
+语法：
+
+```json
+GET /{index}/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "FIELD": "TEXT"
+          }
+        }
+      ],
+      "should": [
+        {
+          "match": {
+            "FIELD": "TEXT"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "match": {
+            "FIELD": "TEXT"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+
+
+```json
+GET /book/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "name": "编程"
+          }
+        }
+      ],
+      "should": [
+        {
+          "match": {
+            "name": "spring开发基础"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 3,
+      "relation" : "eq"
+    },
+    "max_score" : 0.7133499,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 0.7133499,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 0.7133499,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 0.7133499,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+
+
+### match_all
+
+获得全部数据
+
+```json
+GET /book/_search
+{
+    "query": {
+        "match_all": {}
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 5,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "1",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "Bootstrap开发",
+          "description" : "Bootstrap是由Twitter推出的一个前台页面开发css框架，是一个非常流行的开发框架，此框架集成了多种页面效果。此开发框架包含了大量的CSS、JS程序代码，可以帮助开发者（尤其是不擅长css页面开发的程序人员）轻松的实现一个css，不受浏览器限制的精美界面css效果。",
+          "studymodel" : "201002",
+          "price" : 38.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+### match
+
+搜索某字段是否包含某关键字
+
+```json
+GET /book/_search
+{
+    "query": {
+      "match": {
+        "name": "java"
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 3,
+      "relation" : "eq"
+    },
+    "max_score" : 0.52048135,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 0.52048135,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 0.52048135,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 0.52048135,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+### multi_match
+
+搜索在多个字段下是否包含某关键字
+
+```json
+GET /book/_search
+{
+    "query": {
+      "multi_match": {
+        "query": "语言",
+        "fields": ["name","description"]
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 3,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 3,
+      "relation" : "eq"
+    },
+    "max_score" : 1.6503837,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 1.6503837,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 1.6503837,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 1.6503837,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+### range query
+
+范围查询
+
+```json
+GET /book/_search
+{
+    "query": {
+      "range": {
+        "price": {
+          "gte": 69.2,
+          "lte": 80
+        }
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 1,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+### term query
+
+字段为keyword时，存储和搜索都不分词
+
+```json
+GET /book/_search
+{
+    "query": {
+      "term": {
+        "description": {
+          "value": "java程序员"
+        }
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 0,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  }
+}
+
+```
+
+
+
+### terms query
+
+```json
+GET /book/_search
+{
+    "query": {
+      "terms": {
+        "FIELD": [
+          "VALUE1",
+          "VALUE2"
+        ]
+      }
+    }
+}
+```
+
+
+
+### exist query
+
+查询有某些字段值的文档
+
+```json
+GET /book/_search
+{
+    "query": {
+      "exists": {
+        "field": "tags"
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 5,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "1",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "Bootstrap开发",
+          "description" : "Bootstrap是由Twitter推出的一个前台页面开发css框架，是一个非常流行的开发框架，此框架集成了多种页面效果。此开发框架包含了大量的CSS、JS程序代码，可以帮助开发者（尤其是不擅长css页面开发的程序人员）轻松的实现一个css，不受浏览器限制的精美界面css效果。",
+          "studymodel" : "201002",
+          "price" : 38.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+### Fuzzy query
+
+返回包含与搜索词类似的词的文档，该词由Levenshtein编辑距离度量。
+
+包括以下几种情况：
+
+- 更改角色（box→fox）
+- 删除字符（aple→apple）
+- 插入字符（sick→sic）
+- 调换两个相邻字符（ACT→CAT） 
+
+
+
+```json
+GET /book/_search
+{
+    "query": {
+      "fuzzy": {
+        "name": {
+          "value": "jaav"
+        }
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 3,
+      "relation" : "eq"
+    },
+    "max_score" : 0.39036104,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 0.39036104,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 0.39036104,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 0.39036104,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+### IDs
+
+查询多个id为某个数的结果
+
+```json
+GET /book/_search
+{
+    "query": {
+      "ids": {
+        "values": ["1","5","3","100"]
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 3,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "1",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "Bootstrap开发",
+          "description" : "Bootstrap是由Twitter推出的一个前台页面开发css框架，是一个非常流行的开发框架，此框架集成了多种页面效果。此开发框架包含了大量的CSS、JS程序代码，可以帮助开发者（尤其是不擅长css页面开发的程序人员）轻松的实现一个css，不受浏览器限制的精美界面css效果。",
+          "studymodel" : "201002",
+          "price" : 38.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+### prefix 前缀查询
+
+查询某字段满足某前缀的所有数据
+
+```json
+GET /book/_search
+{
+    "query": {
+      "prefix": {
+        "description": {
+          "value": "sprin"
+        }
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 1,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+### regexp query
+
+正则查询
+
+查询某字段满足某正则表达式的所有数据
+
+```json
+GET /book/_search
+{
+    "query": {
+      "regexp": {
+        "description": {
+          "value": "j.*a",
+          "flags": "ALL"
+        }
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 4,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+
+
+## Filter
 

@@ -5844,3 +5844,1251 @@ GET /book/_search
 
 ## Filter
 
+用户查询description中有"java程序员"，并且价格大于60小于70的数据。
+
+```json
+GET /book/_search
+{
+    "query": 
+    {
+      "bool": 
+      {
+        "must": 
+        [
+        {
+          "match": 
+          {
+            "description": "java程序员"
+          }
+        },
+        {
+          "range": 
+          {
+            "price": 
+            {
+              "gte": 60,
+		      "lte": 70
+            }
+          }
+        }
+      ]
+      }
+    }
+}
+```
+
+
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 3,
+      "relation" : "eq"
+    },
+    "max_score" : 1.4398797,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 1.4398797,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 1.4398797,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 1.4398797,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+使用filter：
+
+```json
+GET /book/_search
+{
+    "query": 
+    {
+      "bool": 
+      {
+        "must": 
+        [
+        {
+          "match": 
+          {
+            "description": "java程序员"
+          }
+        }
+      ],
+      "filter": 
+      [
+        {
+          "range": {
+            "price": {
+              "gte": 60,
+              "lte": 70
+            }
+          }
+        }
+      ]
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 3,
+      "relation" : "eq"
+    },
+    "max_score" : 0.4398797,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 0.4398797,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 0.4398797,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 0.4398797,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+分数较低
+
+
+
+### 对比
+
+* filter：仅仅只是按照搜索条件过滤出需要的数据而已，不计算任何相关度分数，对相关度没有任何影响。
+
+* query：会去计算每个document相对于搜索条件的相关度，并按照相关度进行排序。
+
+
+
+一般来说，如果你是在进行搜索，需要将最匹配搜索条件的数据先返回，那么用query		如果你只是要根据一些条件筛选出一部分数据，不关注其排序，那么用filter
+
+
+
+性能：
+
+* filter：不需要计算相关度分数，不需要按照相关度分数进行排序，同时还有内置的自动cache最常使用filter的数据
+
+* query：相反，要计算相关度分数，按照分数进行排序，而且无法cache结果
+
+
+
+
+
+## explain
+
+explain就像mysql的执行计划，可以看到搜索的目标等信息。
+
+也可以定位错误语句
+
+
+
+```json
+GET /book/_search?explain=true
+{
+    "query": 
+    {
+      "bool": 
+      {
+        "must": 
+        [
+        {
+          "match": 
+          {
+            "description": "java程序员"
+          }
+        }
+      ],
+      "filter": 
+      [
+        {
+          "range": {
+            "price": {
+              "gte": 60,
+              "lte": 70
+            }
+          }
+        }
+      ]
+      }
+    }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 3,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 3,
+      "relation" : "eq"
+    },
+    "max_score" : 0.4398797,
+    "hits" : [
+      {
+        "_shard" : "[book][0]",
+        "_node" : "QrII3Cg2Sh-RnBrmVzmV9Q",
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 0.4398797,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        },
+        "_explanation" : {
+          "value" : 0.4398797,
+          "description" : "sum of:",
+          "details" : [
+            {
+              "value" : 0.4398797,
+              "description" : "sum of:",
+              "details" : [
+                {
+                  "value" : 0.33773077,
+                  "description" : "weight(description:java in 1) [PerFieldSimilarity], result of:",
+                  "details" : [
+                    {
+                      "value" : 0.33773077,
+                      "description" : "score(freq=1.0), computed as boost * idf * tf from:",
+                      "details" : [
+                        {
+                          "value" : 2.2,
+                          "description" : "boost",
+                          "details" : [ ]
+                        },
+                        {
+                          "value" : 0.2876821,
+                          "description" : "idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:",
+                          "details" : [
+                            {
+                              "value" : 4,
+                              "description" : "n, number of documents containing term",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 5,
+                              "description" : "N, total number of documents with field",
+                              "details" : [ ]
+                            }
+                          ]
+                        },
+                        {
+                          "value" : 0.5336237,
+                          "description" : "tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:",
+                          "details" : [
+                            {
+                              "value" : 1.0,
+                              "description" : "freq, occurrences of term within document",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 1.2,
+                              "description" : "k1, term saturation parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 0.75,
+                              "description" : "b, length normalization parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 25.0,
+                              "description" : "dl, length of field",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 39.2,
+                              "description" : "avgdl, average length of field",
+                              "details" : [ ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "value" : 0.10214893,
+                  "description" : "weight(description:程 in 1) [PerFieldSimilarity], result of:",
+                  "details" : [
+                    {
+                      "value" : 0.10214893,
+                      "description" : "score(freq=1.0), computed as boost * idf * tf from:",
+                      "details" : [
+                        {
+                          "value" : 2.2,
+                          "description" : "boost",
+                          "details" : [ ]
+                        },
+                        {
+                          "value" : 0.087011375,
+                          "description" : "idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:",
+                          "details" : [
+                            {
+                              "value" : 5,
+                              "description" : "n, number of documents containing term",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 5,
+                              "description" : "N, total number of documents with field",
+                              "details" : [ ]
+                            }
+                          ]
+                        },
+                        {
+                          "value" : 0.5336237,
+                          "description" : "tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:",
+                          "details" : [
+                            {
+                              "value" : 1.0,
+                              "description" : "freq, occurrences of term within document",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 1.2,
+                              "description" : "k1, term saturation parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 0.75,
+                              "description" : "b, length normalization parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 25.0,
+                              "description" : "dl, length of field",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 39.2,
+                              "description" : "avgdl, average length of field",
+                              "details" : [ ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "value" : 0.0,
+              "description" : "match on required clause, product of:",
+              "details" : [
+                {
+                  "value" : 0.0,
+                  "description" : "# clause",
+                  "details" : [ ]
+                },
+                {
+                  "value" : 1.0,
+                  "description" : "price:[60.0 TO 70.0]",
+                  "details" : [ ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "_shard" : "[book][0]",
+        "_node" : "QrII3Cg2Sh-RnBrmVzmV9Q",
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 0.4398797,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        },
+        "_explanation" : {
+          "value" : 0.4398797,
+          "description" : "sum of:",
+          "details" : [
+            {
+              "value" : 0.4398797,
+              "description" : "sum of:",
+              "details" : [
+                {
+                  "value" : 0.33773077,
+                  "description" : "weight(description:java in 3) [PerFieldSimilarity], result of:",
+                  "details" : [
+                    {
+                      "value" : 0.33773077,
+                      "description" : "score(freq=1.0), computed as boost * idf * tf from:",
+                      "details" : [
+                        {
+                          "value" : 2.2,
+                          "description" : "boost",
+                          "details" : [ ]
+                        },
+                        {
+                          "value" : 0.2876821,
+                          "description" : "idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:",
+                          "details" : [
+                            {
+                              "value" : 4,
+                              "description" : "n, number of documents containing term",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 5,
+                              "description" : "N, total number of documents with field",
+                              "details" : [ ]
+                            }
+                          ]
+                        },
+                        {
+                          "value" : 0.5336237,
+                          "description" : "tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:",
+                          "details" : [
+                            {
+                              "value" : 1.0,
+                              "description" : "freq, occurrences of term within document",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 1.2,
+                              "description" : "k1, term saturation parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 0.75,
+                              "description" : "b, length normalization parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 25.0,
+                              "description" : "dl, length of field",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 39.2,
+                              "description" : "avgdl, average length of field",
+                              "details" : [ ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "value" : 0.10214893,
+                  "description" : "weight(description:程 in 3) [PerFieldSimilarity], result of:",
+                  "details" : [
+                    {
+                      "value" : 0.10214893,
+                      "description" : "score(freq=1.0), computed as boost * idf * tf from:",
+                      "details" : [
+                        {
+                          "value" : 2.2,
+                          "description" : "boost",
+                          "details" : [ ]
+                        },
+                        {
+                          "value" : 0.087011375,
+                          "description" : "idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:",
+                          "details" : [
+                            {
+                              "value" : 5,
+                              "description" : "n, number of documents containing term",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 5,
+                              "description" : "N, total number of documents with field",
+                              "details" : [ ]
+                            }
+                          ]
+                        },
+                        {
+                          "value" : 0.5336237,
+                          "description" : "tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:",
+                          "details" : [
+                            {
+                              "value" : 1.0,
+                              "description" : "freq, occurrences of term within document",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 1.2,
+                              "description" : "k1, term saturation parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 0.75,
+                              "description" : "b, length normalization parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 25.0,
+                              "description" : "dl, length of field",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 39.2,
+                              "description" : "avgdl, average length of field",
+                              "details" : [ ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "value" : 0.0,
+              "description" : "match on required clause, product of:",
+              "details" : [
+                {
+                  "value" : 0.0,
+                  "description" : "# clause",
+                  "details" : [ ]
+                },
+                {
+                  "value" : 1.0,
+                  "description" : "price:[60.0 TO 70.0]",
+                  "details" : [ ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "_shard" : "[book][0]",
+        "_node" : "QrII3Cg2Sh-RnBrmVzmV9Q",
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 0.4398797,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        },
+        "_explanation" : {
+          "value" : 0.4398797,
+          "description" : "sum of:",
+          "details" : [
+            {
+              "value" : 0.4398797,
+              "description" : "sum of:",
+              "details" : [
+                {
+                  "value" : 0.33773077,
+                  "description" : "weight(description:java in 4) [PerFieldSimilarity], result of:",
+                  "details" : [
+                    {
+                      "value" : 0.33773077,
+                      "description" : "score(freq=1.0), computed as boost * idf * tf from:",
+                      "details" : [
+                        {
+                          "value" : 2.2,
+                          "description" : "boost",
+                          "details" : [ ]
+                        },
+                        {
+                          "value" : 0.2876821,
+                          "description" : "idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:",
+                          "details" : [
+                            {
+                              "value" : 4,
+                              "description" : "n, number of documents containing term",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 5,
+                              "description" : "N, total number of documents with field",
+                              "details" : [ ]
+                            }
+                          ]
+                        },
+                        {
+                          "value" : 0.5336237,
+                          "description" : "tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:",
+                          "details" : [
+                            {
+                              "value" : 1.0,
+                              "description" : "freq, occurrences of term within document",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 1.2,
+                              "description" : "k1, term saturation parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 0.75,
+                              "description" : "b, length normalization parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 25.0,
+                              "description" : "dl, length of field",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 39.2,
+                              "description" : "avgdl, average length of field",
+                              "details" : [ ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "value" : 0.10214893,
+                  "description" : "weight(description:程 in 4) [PerFieldSimilarity], result of:",
+                  "details" : [
+                    {
+                      "value" : 0.10214893,
+                      "description" : "score(freq=1.0), computed as boost * idf * tf from:",
+                      "details" : [
+                        {
+                          "value" : 2.2,
+                          "description" : "boost",
+                          "details" : [ ]
+                        },
+                        {
+                          "value" : 0.087011375,
+                          "description" : "idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:",
+                          "details" : [
+                            {
+                              "value" : 5,
+                              "description" : "n, number of documents containing term",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 5,
+                              "description" : "N, total number of documents with field",
+                              "details" : [ ]
+                            }
+                          ]
+                        },
+                        {
+                          "value" : 0.5336237,
+                          "description" : "tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:",
+                          "details" : [
+                            {
+                              "value" : 1.0,
+                              "description" : "freq, occurrences of term within document",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 1.2,
+                              "description" : "k1, term saturation parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 0.75,
+                              "description" : "b, length normalization parameter",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 25.0,
+                              "description" : "dl, length of field",
+                              "details" : [ ]
+                            },
+                            {
+                              "value" : 39.2,
+                              "description" : "avgdl, average length of field",
+                              "details" : [ ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "value" : 0.0,
+              "description" : "match on required clause, product of:",
+              "details" : [
+                {
+                  "value" : 0.0,
+                  "description" : "# clause",
+                  "details" : [ ]
+                },
+                {
+                  "value" : 1.0,
+                  "description" : "price:[60.0 TO 70.0]",
+                  "details" : [ ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+
+
+## 排序规则
+
+默认情况下，是按照_score降序排序的
+
+然而，某些情况下，可能没有有用的_score，比如说filter
+
+所以，要对字段进行排序
+
+
+
+如果对一个text field进行排序，结果往往不准确，因为分词后是多个单词，再排序就不是我们想要的结果了。
+
+通常解决方案是，将一个text field建立两次索引，一个分词，用来进行搜索；一个不分词，用来进行排序。
+
+1. 创建索引时设置fielddate:true
+
+2. 创建索引时加入以下信息
+
+```json
+"字段名": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword"
+        }        
+      }      
+    },
+```
+
+
+
+排序：
+
+```json
+GET /book/_search
+{
+    "query": 
+    {
+      "bool": 
+      {
+        "must": 
+        [
+        {
+          "match": 
+          {
+            "description": "java程序员"
+          }
+        }
+      ]
+    }
+    }
+  ,
+  "sort": [
+    {
+      "price": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 9,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 5,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : null,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        },
+        "sort" : [
+          78.6
+        ]
+      },
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : null,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        },
+        "sort" : [
+          68.6
+        ]
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : null,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        },
+        "sort" : [
+          68.6
+        ]
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : null,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        },
+        "sort" : [
+          68.6
+        ]
+      },
+      {
+        "_index" : "book",
+        "_id" : "1",
+        "_score" : null,
+        "_source" : {
+          "name" : "Bootstrap开发",
+          "description" : "Bootstrap是由Twitter推出的一个前台页面开发css框架，是一个非常流行的开发框架，此框架集成了多种页面效果。此开发框架包含了大量的CSS、JS程序代码，可以帮助开发者（尤其是不擅长css页面开发的程序人员）轻松的实现一个css，不受浏览器限制的精美界面css效果。",
+          "studymodel" : "201002",
+          "price" : 38.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        },
+        "sort" : [
+          38.6
+        ]
+      }
+    ]
+  }
+}
+
+```
+
+
+
+## Scroll分批查询
+
+场景：下载某一个索引中1亿条数据，到文件或是数据库。
+
+不能一下全查出来，系统内存溢出。所以使用scoll滚动搜索技术，一批一批查询。
+
+scoll搜索会在第一次搜索的时候，保存一个当时的视图快照，之后只会基于该旧的视图快照提供数据搜索，如果这个期间数据变更，是不会让用户看到的
+
+每次发送scroll请求，我们还需要指定一个scoll参数，指定一个时间窗口，每次搜索请求只要在这个时间窗口内能完成就可以了。
+
+
+
+搜索：
+
+```json
+GET /book/_search?scroll=1m
+{
+  "query": {
+    "match_all": {}
+  },
+  "size": 3
+}
+```
+
+结果：
+
+```json
+{
+  "_scroll_id" : "FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFlZZWjZjb1daUVpxZUlYdHUzbDVadGcAAAAAAAAhYRZRcklJM0NnMlNoLVJuQnJtVnptVjlR",
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 5,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "1",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "Bootstrap开发",
+          "description" : "Bootstrap是由Twitter推出的一个前台页面开发css框架，是一个非常流行的开发框架，此框架集成了多种页面效果。此开发框架包含了大量的CSS、JS程序代码，可以帮助开发者（尤其是不擅长css页面开发的程序人员）轻松的实现一个css，不受浏览器限制的精美界面css效果。",
+          "studymodel" : "201002",
+          "price" : 38.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+获得的结果会有一个scoll_id，下一次再发送scoll请求的时候，必须带上这个scoll_id
+
+再次发送：
+
+```json
+GET /_search/scroll
+{
+    "scroll": "10m", 
+    "scroll_id" : "FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFlZZWjZjb1daUVpxZUlYdHUzbDVadGcAAAAAAAAhYRZRcklJM0NnMlNoLVJuQnJtVnptVjlR"
+}
+```
+
+结果：
+
+```json
+{
+  "_scroll_id" : "FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFlZZWjZjb1daUVpxZUlYdHUzbDVadGcAAAAAAAAhYRZRcklJM0NnMlNoLVJuQnJtVnptVjlR",
+  "took" : 3,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 5,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+再次发送：
+
+```json
+GET /_search/scroll
+{
+    "scroll": "10m", 
+    "scroll_id" : "FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFlZZWjZjb1daUVpxZUlYdHUzbDVadGcAAAAAAAAhYRZRcklJM0NnMlNoLVJuQnJtVnptVjlR"
+}
+```
+
+结果：
+
+```json
+{
+  "_scroll_id" : "FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFlZZWjZjb1daUVpxZUlYdHUzbDVadGcAAAAAAAAhYRZRcklJM0NnMlNoLVJuQnJtVnptVjlR",
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 5,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [ ]
+  }
+}
+
+```
+
+
+
+
+
+# java API实现搜索
+
