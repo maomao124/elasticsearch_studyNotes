@@ -16434,5 +16434,1213 @@ GET /tvs/_search
 ### 划分范围 histogram
 
 ```json
+GET /tvs/_search
+{
+  "query": 
+  {
+    "match_all": {}
+  },
+  "size": 0, 
+  "aggs": 
+  {
+    "histogram_price": 
+    {
+      "histogram": 
+      {
+        "field": "price",
+        "interval": 2000
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 14,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  },
+  "aggregations" : {
+    "histogram_price" : {
+      "buckets" : [
+        {
+          "key" : 0.0,
+          "doc_count" : 3
+        },
+        {
+          "key" : 2000.0,
+          "doc_count" : 5
+        },
+        {
+          "key" : 4000.0,
+          "doc_count" : 3
+        },
+        {
+          "key" : 6000.0,
+          "doc_count" : 1
+        },
+        {
+          "key" : 8000.0,
+          "doc_count" : 2
+        }
+      ]
+    }
+  }
+}
+
+```
+
+
+
+### 按照日期分组聚合
+
+```json
+GET /tvs/_search
+{
+   "size" : 0,
+   "aggs": {
+      "sales": {
+         "date_histogram": {
+            "field": "sold_date",
+            "interval": "month", 
+            "format": "yyyy-MM-dd",
+            "min_doc_count" : 0, 
+            "extended_bounds" : { 
+                "min" : "2019-01-01",
+                "max" : "2022-12-31"
+            }
+         }
+      }
+   }
+}
+```
+
+
+
+
+
+### 统计每季度每个品牌的销售额
+
+```json
+GET /tvs/_search 
+{
+  "size": 0,
+  "aggs": {
+    "group_by_sold_date": {
+      "date_histogram": {
+        "field": "sold_date",
+        "interval": "quarter",
+        "format": "yyyy-MM-dd",
+        "min_doc_count": 0,
+        "extended_bounds": {
+          "min": "2019-01-01",
+          "max": "2022-12-31"
+        }
+      },
+      "aggs": {
+        "group_by_brand": {
+          "terms": {
+            "field": "brand"
+          },
+          "aggs": {
+            "sum_price": {
+              "sum": {
+                "field": "price"
+              }
+            }
+          }
+        },
+        "total_sum_price": {
+          "sum": {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+
+
+
+
+### 搜索与聚合结合，查询某个品牌按颜色销量
+
+```json
+GET /tvs/_search
+{
+  "query": 
+  {
+    "match": 
+    {
+      "brand": "小米"
+    }
+  },
+  "aggs": {
+    "group_by_color": 
+    {
+      "terms": 
+      {
+        "field": "color"
+      }
+    }
+  }
+}
+
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 5,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0033021,
+    "hits" : [
+      {
+        "_index" : "tvs",
+        "_id" : "7aouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 3000,
+          "color" : "绿色",
+          "brand" : "小米",
+          "sold_date" : "2019-05-18"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "8qouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 2500,
+          "color" : "蓝色",
+          "brand" : "小米",
+          "sold_date" : "2020-02-12"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "86ouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 4500,
+          "color" : "绿色",
+          "brand" : "小米",
+          "sold_date" : "2020-04-22"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "9qouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 8500,
+          "color" : "红色",
+          "brand" : "小米",
+          "sold_date" : "2020-05-19"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "-KouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 4800,
+          "color" : "黑色",
+          "brand" : "小米",
+          "sold_date" : "2020-06-10"
+        }
+      }
+    ]
+  },
+  "aggregations" : {
+    "group_by_color" : {
+      "doc_count_error_upper_bound" : 0,
+      "sum_other_doc_count" : 0,
+      "buckets" : [
+        {
+          "key" : "绿色",
+          "doc_count" : 2
+        },
+        {
+          "key" : "红色",
+          "doc_count" : 1
+        },
+        {
+          "key" : "蓝色",
+          "doc_count" : 1
+        },
+        {
+          "key" : "黑色",
+          "doc_count" : 1
+        }
+      ]
+    }
+  }
+}
+
+```
+
+
+
+
+
+### 单个品牌与所有品牌销量对比
+
+```json
+GET /tvs/_search
+{
+  "query": 
+  {
+    "term": 
+    {
+      "brand": 
+      {
+        "value": "小米"
+      }
+    }
+  },
+  "aggs": 
+  {
+    "single_brand_avg_price": 
+    {
+      "avg": 
+      {
+        "field": "price"
+      }
+    },
+    "all":
+    {
+      "global": 
+      {
+        
+      },
+      "aggs": 
+      {
+        "all_brand_avg_price": 
+        {
+          "avg": 
+          {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 2,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 5,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0033021,
+    "hits" : [
+      {
+        "_index" : "tvs",
+        "_id" : "7aouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 3000,
+          "color" : "绿色",
+          "brand" : "小米",
+          "sold_date" : "2019-05-18"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "8qouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 2500,
+          "color" : "蓝色",
+          "brand" : "小米",
+          "sold_date" : "2020-02-12"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "86ouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 4500,
+          "color" : "绿色",
+          "brand" : "小米",
+          "sold_date" : "2020-04-22"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "9qouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 8500,
+          "color" : "红色",
+          "brand" : "小米",
+          "sold_date" : "2020-05-19"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "-KouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 4800,
+          "color" : "黑色",
+          "brand" : "小米",
+          "sold_date" : "2020-06-10"
+        }
+      }
+    ]
+  },
+  "aggregations" : {
+    "all" : {
+      "doc_count" : 14,
+      "all_brand_avg_price" : {
+        "value" : 3671.4285714285716
+      }
+    },
+    "single_brand_avg_price" : {
+      "value" : 4660.0
+    }
+  }
+}
+
+```
+
+
+
+### 统计价格大于1200的电视平均价格
+
+```json
+GET /tvs/_search
+{
+  "query": 
+  {
+    "constant_score":
+    {
+      "filter": 
+      {
+        "range": 
+        {
+          "price": 
+          {
+            "gte": 1200
+          }
+        }
+      }
+    }
+  },
+  "aggs": 
+  {
+    "avg_price": 
+    {
+      "avg": 
+      {
+        "field": "price"
+      }
+    }
+  }
+
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 13,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "tvs",
+        "_id" : "7KouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 2000,
+          "color" : "红色",
+          "brand" : "长虹",
+          "sold_date" : "2019-11-05"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "7aouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 3000,
+          "color" : "绿色",
+          "brand" : "小米",
+          "sold_date" : "2019-05-18"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "7qouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 1500,
+          "color" : "蓝色",
+          "brand" : "TCL",
+          "sold_date" : "2019-07-02"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "76ouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 1200,
+          "color" : "绿色",
+          "brand" : "TCL",
+          "sold_date" : "2019-08-19"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "8KouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 2000,
+          "color" : "红色",
+          "brand" : "长虹",
+          "sold_date" : "2019-11-05"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "8aouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 8000,
+          "color" : "红色",
+          "brand" : "三星",
+          "sold_date" : "2020-01-01"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "8qouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 2500,
+          "color" : "蓝色",
+          "brand" : "小米",
+          "sold_date" : "2020-02-12"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "86ouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 4500,
+          "color" : "绿色",
+          "brand" : "小米",
+          "sold_date" : "2020-04-22"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "9KouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 6100,
+          "color" : "蓝色",
+          "brand" : "三星",
+          "sold_date" : "2020-05-16"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "9aouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 2100,
+          "color" : "白色",
+          "brand" : "TCL",
+          "sold_date" : "2020-05-17"
+        }
+      }
+    ]
+  },
+  "aggregations" : {
+    "avg_price" : {
+      "value" : 3876.923076923077
+    }
+  }
+}
+
+```
+
+
+
+### 统计品牌最近一个月的平均价格
+
+```json
+GET /tvs/_search 
+{
+  "size": 0,
+  "query": {
+    "term": {
+      "brand": {
+        "value": "小米"
+      }
+    }
+  },
+  "aggs": {
+    "recent_150d": {
+      "filter": {
+        "range": {
+          "sold_date": {
+            "gte": "now-150d"
+          }
+        }
+      },
+      "aggs": {
+        "recent_150d_avg_price": {
+          "avg": {
+            "field": "price"
+          }
+        }
+      }
+    },
+    "recent_140d": {
+      "filter": {
+        "range": {
+          "sold_date": {
+            "gte": "now-140d"
+          }
+        }
+      },
+      "aggs": {
+        "recent_140d_avg_price": {
+          "avg": {
+            "field": "price"
+          }
+        }
+      }
+    },
+    "recent_130d": {
+      "filter": {
+        "range": {
+          "sold_date": {
+            "gte": "now-130d"
+          }
+        }
+      },
+      "aggs": {
+        "recent_130d_avg_price": {
+          "avg": {
+            "field": "price"
+          }
+        }
+      }
+    },
+    "recent_800d": {
+      "filter": {
+        "range": {
+          "sold_date": {
+            "gte": "now-800d"
+          }
+        }
+      },
+      "aggs": {
+        "recent_800d_avg_price": {
+          "avg": {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 5,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  },
+  "aggregations" : {
+    "recent_800d" : {
+      "doc_count" : 3,
+      "recent_800d_avg_price" : {
+        "value" : 5933.333333333333
+      }
+    },
+    "recent_130d" : {
+      "meta" : { },
+      "doc_count" : 0,
+      "recent_130d_avg_price" : {
+        "value" : null
+      }
+    },
+    "recent_140d" : {
+      "meta" : { },
+      "doc_count" : 0,
+      "recent_140d_avg_price" : {
+        "value" : null
+      }
+    },
+    "recent_150d" : {
+      "meta" : { },
+      "doc_count" : 0,
+      "recent_150d_avg_price" : {
+        "value" : null
+      }
+    }
+  }
+}
+
+```
+
+
+
+
+
+### 按每种颜色的平均销售额降序排序
+
+```json
+GET /tvs/_search
+{
+  "query": 
+  {
+    "match_all": {}
+  },
+  "size": 0, 
+  "aggs": 
+  {
+    "group_by_color": 
+    {
+      "terms": 
+      {
+        "field": "color",
+        "order": 
+        {
+          "avg_price": "desc"
+        }
+      },
+      "aggs": 
+      {
+        "avg_price": 
+        {
+          "avg": 
+          {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 14,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  },
+  "aggregations" : {
+    "group_by_color" : {
+      "doc_count_error_upper_bound" : 0,
+      "sum_other_doc_count" : 0,
+      "buckets" : [
+        {
+          "key" : "黑色",
+          "doc_count" : 1,
+          "avg_price" : {
+            "value" : 4800.0
+          }
+        },
+        {
+          "key" : "红色",
+          "doc_count" : 5,
+          "avg_price" : {
+            "value" : 4300.0
+          }
+        },
+        {
+          "key" : "蓝色",
+          "doc_count" : 4,
+          "avg_price" : {
+            "value" : 3575.0
+          }
+        },
+        {
+          "key" : "绿色",
+          "doc_count" : 3,
+          "avg_price" : {
+            "value" : 2900.0
+          }
+        },
+        {
+          "key" : "白色",
+          "doc_count" : 1,
+          "avg_price" : {
+            "value" : 2100.0
+          }
+        }
+      ]
+    }
+  }
+}
+
+```
+
+
+
+### 按每种颜色的每种品牌平均销售额降序排序
+
+```json
+GET /tvs/_search
+{
+  "query": 
+  {
+    "match_all": {}
+  },
+  "size": 0, 
+  "aggs": 
+  {
+    "group_by_color": 
+    {
+      "terms": 
+      {
+        "field": "color"
+        
+      },
+      "aggs": 
+      {
+        "group_by_brand": 
+        {
+          "terms": 
+          {
+            "field": "brand",
+            "order": 
+            {
+              "avg_price": "desc"
+            }
+          },
+          "aggs": 
+          {
+            "avg_price": 
+            {
+              "avg": 
+              {
+                "field": "price"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 2,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 14,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  },
+  "aggregations" : {
+    "group_by_color" : {
+      "doc_count_error_upper_bound" : 0,
+      "sum_other_doc_count" : 0,
+      "buckets" : [
+        {
+          "key" : "红色",
+          "doc_count" : 5,
+          "group_by_brand" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "小米",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 8500.0
+                }
+              },
+              {
+                "key" : "三星",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 8000.0
+                }
+              },
+              {
+                "key" : "长虹",
+                "doc_count" : 3,
+                "avg_price" : {
+                  "value" : 1666.6666666666667
+                }
+              }
+            ]
+          }
+        },
+        {
+          "key" : "蓝色",
+          "doc_count" : 4,
+          "group_by_brand" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "三星",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 6100.0
+                }
+              },
+              {
+                "key" : "长虹",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 4200.0
+                }
+              },
+              {
+                "key" : "小米",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 2500.0
+                }
+              },
+              {
+                "key" : "TCL",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 1500.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "key" : "绿色",
+          "doc_count" : 3,
+          "group_by_brand" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "小米",
+                "doc_count" : 2,
+                "avg_price" : {
+                  "value" : 3750.0
+                }
+              },
+              {
+                "key" : "TCL",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 1200.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "key" : "白色",
+          "doc_count" : 1,
+          "group_by_brand" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "TCL",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 2100.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "key" : "黑色",
+          "doc_count" : 1,
+          "group_by_brand" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "小米",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 4800.0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+
+```
+
+
+
+
+
+# java API实现聚合
+
+
+
+## 统计哪种颜色的电视销量最高
+
+
+
+```java
+ /**
+     * 统计哪种颜色的电视销量最高
+     * <p>
+     * 请求内容：
+     * <pre>
+     *
+     * GET /tvs/_search
+     * {
+     *   "query":
+     *   {
+     *     "match_all": {}
+     *   },
+     *   "size": 0,
+     *   "aggs":
+     *   {
+     *     "popular_colors":
+     *     {
+     *       "terms":
+     *       {
+     *         "field": "color"
+     *       }
+     *     }
+     *   }
+     * }
+     *
+     * </pre>
+     * <p>
+     * 结果：
+     * <pre>
+     *
+     * {
+     *   "took" : 12,
+     *   "timed_out" : false,
+     *   "_shards" : {
+     *     "total" : 1,
+     *     "successful" : 1,
+     *     "skipped" : 0,
+     *     "failed" : 0
+     *   },
+     *   "hits" : {
+     *     "total" : {
+     *       "value" : 14,
+     *       "relation" : "eq"
+     *     },
+     *     "max_score" : null,
+     *     "hits" : [ ]
+     *   },
+     *   "aggregations" : {
+     *     "popular_colors" : {
+     *       "doc_count_error_upper_bound" : 0,
+     *       "sum_other_doc_count" : 0,
+     *       "buckets" : [
+     *         {
+     *           "key" : "红色",
+     *           "doc_count" : 5
+     *         },
+     *         {
+     *           "key" : "蓝色",
+     *           "doc_count" : 4
+     *         },
+     *         {
+     *           "key" : "绿色",
+     *           "doc_count" : 3
+     *         },
+     *         {
+     *           "key" : "白色",
+     *           "doc_count" : 1
+     *         },
+     *         {
+     *           "key" : "黑色",
+     *           "doc_count" : 1
+     *         }
+     *       ]
+     *     }
+     *   }
+     * }
+     *
+     * </pre>
+     *
+     * 程序结果：
+     * <pre>
+     *
+     * ----key：红色
+     * ----doc_count：5
+     * ----------------------------------------
+     * ----key：蓝色
+     * ----doc_count：4
+     * ----------------------------------------
+     * ----key：绿色
+     * ----doc_count：3
+     * ----------------------------------------
+     * ----key：白色
+     * ----doc_count：1
+     * ----------------------------------------
+     * ----key：黑色
+     * ----doc_count：1
+     * ----------------------------------------
+     *
+     * </pre>
+     *
+     * @throws Exception Exception
+     */
+    @Test
+    void aggregation1() throws Exception
+    {
+        //构建请求
+        SearchRequest searchRequest = new SearchRequest("tvs");
+        //构建请求体
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        //查询
+        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+        //分页
+        searchSourceBuilder.size(0);
+        //聚合
+        searchSourceBuilder.aggregation(AggregationBuilders.terms("popular_colors").field("color"));
+        //放入到请求中
+        searchRequest.source(searchSourceBuilder);
+        //发起请求
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+        //获取数据
+        //获取aggregations部分
+        Aggregations aggregations = searchResponse.getAggregations();
+        //获得popular_colors
+        Terms popular_colors = aggregations.get("popular_colors");
+        //获取buckets部分
+        List<? extends Terms.Bucket> buckets = popular_colors.getBuckets();
+        //遍历
+        for (Terms.Bucket bucket : buckets)
+        {
+            //获取数据
+            String key = (String) bucket.getKey();
+            long docCount = bucket.getDocCount();
+            //打印
+            System.out.println("----key：" + key);
+            System.out.println("----doc_count：" + docCount);
+            System.out.println("----------------------------------------");
+        }
+
+    }
+```
+
+
+
+
+
+## 统计每种颜色电视平均价格
+
+```java
 ```
 
