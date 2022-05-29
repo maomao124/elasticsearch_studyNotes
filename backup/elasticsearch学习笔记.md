@@ -15375,3 +15375,1064 @@ public class ElasticSearchTest
 
 # 评分机制
 
+Elasticsearch使用的是 term frequency/inverse document frequency算法，简称为TF/IDF算法。TF词频(Term Frequency)，IDF逆向文件频率(Inverse Document Frequency)
+
+relevance score算法，简单来说，就是计算出，一个索引中的文本，与搜索文本，他们之间的关联匹配程度。
+
+
+
+**Term frequency**：搜索文本中的各个词条在field文本中出现了多少次，出现次数越多，就越相关。
+
+**Inverse document frequency**：搜索文本中的各个词条在整个索引的所有文档中出现了多少次，出现的次数越多，就越不相关.
+
+**Field-length norm**：field长度，field越长，相关度越弱
+
+
+
+
+
+# 聚合
+
+## bucket和metric
+
+* bucket：一个数据分组
+
+city  name
+        北京 张三
+        北京 李四
+        天津 王五
+        天津 赵六
+
+天津 王麻子
+
+划分出来两个bucket，一个是北京bucket，一个是天津bucket
+北京bucket：包含了2个人，张三，李四
+上海bucket：包含了3个人，王五，赵六，王麻子
+
+
+
+* metric：对一个数据分组执行的统计
+
+metric，就是对一个bucket执行的某种聚合分析的操作，比如说求平均值，求最大值，求最小值
+
+
+
+
+
+## 示例
+
+### 计算每个studymodel下的商品数量
+
+```json
+GET /book/_search
+{
+  "size": 0, 
+  "query": {
+    "match_all": {}
+  }, 
+  "aggs": 
+    {
+    "group_by_model": {
+      "terms": { "field": "studymodel" }
+    }
+  }
+}
+```
+
+
+
+### 计算每个tags下的商品数量
+
+```json
+GET /book/_search
+{
+  "size": 0, 
+  "query": {
+    "match_all": {}
+  }, 
+  "aggs": {
+    "group_by_tags": {
+      "terms": { "field": "tags" }
+    }
+  }
+}
+```
+
+
+
+### 先分组，再算每组的平均值，计算每个tag下的商品的平均价格
+
+```json
+GET /book/_search
+{
+  "size": 0, 
+  "query": {
+    "match_all": {}
+  }, 
+  "aggs": {
+    "group_by_model": 
+    {
+      "terms": 
+      {
+        "field": "tags" 
+      },
+      "aggs": {
+        "avg_price": 
+        {
+          "avg": 
+          {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+
+```
+
+
+
+### 计算每个tag下的商品的平均价格，并且按照平均价格降序排序
+
+```json
+GET /book/_search
+{
+  "size": 0, 
+  "query": {
+    "match_all": {}
+  }, 
+  "aggs": {
+    "group_by_model": 
+    {
+      "terms": 
+      {
+        "field": "tags" ,
+        "order": 
+        {
+          "price": "desc"
+        }
+      },
+      "aggs": {
+        "avg_price": 
+        {
+          "avg": 
+          {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+
+```
+
+
+
+### 按照指定的价格范围区间进行分组，然后在每组内再按照tag进行分组，最后再计算每组的平均价格
+
+```json
+GET /book/_search
+{
+  "size": 0, 
+  "query": 
+  {
+    "match_all": {}
+  }, 
+  "aggs": {
+    "group_by_price": 
+    {
+      "range": 
+      {
+        "field": "price",
+        "ranges": 
+        [
+          {
+            "from": 0,
+            "to": 40
+          },
+          {
+            "from": 40,
+            "to": 60
+          },
+          {
+            "from": 60,
+            "to": 80
+          },
+          {
+            "from": 80,
+            "to": 100
+          }
+        ]
+      },
+      "aggs": 
+      {
+        "group_by_tags": 
+        {
+          "terms": 
+          {
+            "field": "tags"
+          },
+          "aggs": 
+          {
+            "price_avg": 
+            {
+              "avg": 
+              {
+                "field": "price"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+```
+
+
+
+
+
+## 电视案例
+
+
+
+### 创建索引及映射
+
+```json
+PUT /tvs
+PUT /tvs/_mapping
+{			
+			"properties": {
+				"price": {
+					"type": "long"
+				},
+				"color": {
+					"type": "keyword"
+				},
+				"brand": {
+					"type": "keyword"
+				},
+				"sold_date": {
+					"type": "date"
+				}
+			}
+}
+```
+
+
+
+### 查看索引
+
+```json
+{
+  "tvs" : {
+    "aliases" : { },
+    "mappings" : {
+      "properties" : {
+        "brand" : {
+          "type" : "keyword"
+        },
+        "color" : {
+          "type" : "keyword"
+        },
+        "price" : {
+          "type" : "long"
+        },
+        "sold_date" : {
+          "type" : "date"
+        }
+      }
+    },
+    "settings" : {
+      "index" : {
+        "routing" : {
+          "allocation" : {
+            "include" : {
+              "_tier_preference" : "data_content"
+            }
+          }
+        },
+        "number_of_shards" : "1",
+        "provided_name" : "tvs",
+        "creation_date" : "1653799931947",
+        "number_of_replicas" : "1",
+        "uuid" : "UPq3NuVHTlWq1r9GrCj4fw",
+        "version" : {
+          "created" : "8010399"
+        }
+      }
+    }
+  }
+}
+
+```
+
+
+
+### 插入数据
+
+```json
+POST /tvs/_bulk
+{ "index": {}}
+{ "price" : 1000, "color" : "红色", "brand" : "长虹", "sold_date" : "2019-10-28" }
+{ "index": {}}
+{ "price" : 2000, "color" : "红色", "brand" : "长虹", "sold_date" : "2019-11-05" }
+{ "index": {}}
+{ "price" : 3000, "color" : "绿色", "brand" : "小米", "sold_date" : "2019-05-18" }
+{ "index": {}}
+{ "price" : 1500, "color" : "蓝色", "brand" : "TCL", "sold_date" : "2019-07-02" }
+{ "index": {}}
+{ "price" : 1200, "color" : "绿色", "brand" : "TCL", "sold_date" : "2019-08-19" }
+{ "index": {}}
+{ "price" : 2000, "color" : "红色", "brand" : "长虹", "sold_date" : "2019-11-05" }
+{ "index": {}}
+{ "price" : 8000, "color" : "红色", "brand" : "三星", "sold_date" : "2020-01-01" }
+{ "index": {}}
+{ "price" : 2500, "color" : "蓝色", "brand" : "小米", "sold_date" : "2020-02-12" }
+{ "index": {}}
+{ "price" : 4500, "color" : "绿色", "brand" : "小米", "sold_date" : "2020-04-22" }
+{ "index": {}}
+{ "price" : 6100, "color" : "蓝色", "brand" : "三星", "sold_date" : "2020-05-16" }
+{ "index": {}}
+{ "price" : 2100, "color" : "白色", "brand" : "TCL", "sold_date" : "2020-05-17" }
+{ "index": {}}
+{ "price" : 8500, "color" : "红色", "brand" : "小米", "sold_date" : "2020-05-19" }
+{ "index": {}}
+{ "price" : 4200, "color" : "蓝色", "brand" : "长虹", "sold_date" : "2020-05-23" }
+{ "index": {}}
+{ "price" : 4800, "color" : "黑色", "brand" : "小米", "sold_date" : "2020-06-10" }
+
+```
+
+
+
+### 查看数据
+
+
+
+```json
+GET /tvs/_search
+```
+
+结果：
+
+```json
+{
+  "took" : 0,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 14,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "tvs",
+        "_id" : "66ouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 1000,
+          "color" : "红色",
+          "brand" : "长虹",
+          "sold_date" : "2019-10-28"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "7KouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 2000,
+          "color" : "红色",
+          "brand" : "长虹",
+          "sold_date" : "2019-11-05"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "7aouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 3000,
+          "color" : "绿色",
+          "brand" : "小米",
+          "sold_date" : "2019-05-18"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "7qouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 1500,
+          "color" : "蓝色",
+          "brand" : "TCL",
+          "sold_date" : "2019-07-02"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "76ouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 1200,
+          "color" : "绿色",
+          "brand" : "TCL",
+          "sold_date" : "2019-08-19"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "8KouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 2000,
+          "color" : "红色",
+          "brand" : "长虹",
+          "sold_date" : "2019-11-05"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "8aouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 8000,
+          "color" : "红色",
+          "brand" : "三星",
+          "sold_date" : "2020-01-01"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "8qouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 2500,
+          "color" : "蓝色",
+          "brand" : "小米",
+          "sold_date" : "2020-02-12"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "86ouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 4500,
+          "color" : "绿色",
+          "brand" : "小米",
+          "sold_date" : "2020-04-22"
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "9KouDoEBEpQthbP41cfj",
+        "_score" : 1.0,
+        "_source" : {
+          "price" : 6100,
+          "color" : "蓝色",
+          "brand" : "三星",
+          "sold_date" : "2020-05-16"
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+
+
+### 统计哪种颜色的电视销量最高
+
+```json
+GET /tvs/_search
+{
+  "query": 
+  {
+    "match_all": {}
+  },
+  "size": 0, 
+  "aggs": 
+  {
+    "popular_colors": 
+    {
+      "terms": 
+      {
+        "field": "color"
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 12,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 14,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  },
+  "aggregations" : {
+    "popular_colors" : {
+      "doc_count_error_upper_bound" : 0,
+      "sum_other_doc_count" : 0,
+      "buckets" : [
+        {
+          "key" : "红色",
+          "doc_count" : 5
+        },
+        {
+          "key" : "蓝色",
+          "doc_count" : 4
+        },
+        {
+          "key" : "绿色",
+          "doc_count" : 3
+        },
+        {
+          "key" : "白色",
+          "doc_count" : 1
+        },
+        {
+          "key" : "黑色",
+          "doc_count" : 1
+        }
+      ]
+    }
+  }
+}
+
+```
+
+
+
+### 统计每种颜色电视平均价格
+
+```json
+GET /tvs/_search
+{
+  "query": 
+  {
+    "match_all": {}
+  },
+  "size": 0, 
+  "aggs": 
+  {
+    "group_by_colors": 
+    {
+      "terms": 
+      {
+        "field": "color"
+      },
+      "aggs": {
+        "avg_price": 
+        {
+          "avg": 
+          {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 14,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  },
+  "aggregations" : {
+    "group_by_colors" : {
+      "doc_count_error_upper_bound" : 0,
+      "sum_other_doc_count" : 0,
+      "buckets" : [
+        {
+          "key" : "红色",
+          "doc_count" : 5,
+          "avg_price" : {
+            "value" : 4300.0
+          }
+        },
+        {
+          "key" : "蓝色",
+          "doc_count" : 4,
+          "avg_price" : {
+            "value" : 3575.0
+          }
+        },
+        {
+          "key" : "绿色",
+          "doc_count" : 3,
+          "avg_price" : {
+            "value" : 2900.0
+          }
+        },
+        {
+          "key" : "白色",
+          "doc_count" : 1,
+          "avg_price" : {
+            "value" : 2100.0
+          }
+        },
+        {
+          "key" : "黑色",
+          "doc_count" : 1,
+          "avg_price" : {
+            "value" : 4800.0
+          }
+        }
+      ]
+    }
+  }
+}
+
+```
+
+
+
+
+
+### 统计每个颜色下，平均价格及每个颜色下，每个品牌的平均价格
+
+```json
+GET /tvs/_search
+{
+  "query": 
+  {
+    "match_all": {}
+  },
+  "size": 0, 
+  "aggs": 
+  {
+    "group_by_colors": 
+    {
+      "terms": 
+      {
+        "field": "color"
+      },
+      "aggs": 
+      {
+        "avg_price": 
+        {
+          "avg": 
+          {
+            "field": "price"
+          }
+        },
+        "group_by_brand":
+        {
+          "terms": 
+          {
+            "field": "brand"
+          },
+          "aggs": 
+          {
+            "avg_price": 
+            {
+              "avg": 
+              {
+                "field": "price"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 14,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  },
+  "aggregations" : {
+    "group_by_colors" : {
+      "doc_count_error_upper_bound" : 0,
+      "sum_other_doc_count" : 0,
+      "buckets" : [
+        {
+          "key" : "红色",
+          "doc_count" : 5,
+          "avg_price" : {
+            "value" : 4300.0
+          },
+          "group_by_brand" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "长虹",
+                "doc_count" : 3,
+                "avg_price" : {
+                  "value" : 1666.6666666666667
+                }
+              },
+              {
+                "key" : "三星",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 8000.0
+                }
+              },
+              {
+                "key" : "小米",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 8500.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "key" : "蓝色",
+          "doc_count" : 4,
+          "avg_price" : {
+            "value" : 3575.0
+          },
+          "group_by_brand" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "TCL",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 1500.0
+                }
+              },
+              {
+                "key" : "三星",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 6100.0
+                }
+              },
+              {
+                "key" : "小米",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 2500.0
+                }
+              },
+              {
+                "key" : "长虹",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 4200.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "key" : "绿色",
+          "doc_count" : 3,
+          "avg_price" : {
+            "value" : 2900.0
+          },
+          "group_by_brand" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "小米",
+                "doc_count" : 2,
+                "avg_price" : {
+                  "value" : 3750.0
+                }
+              },
+              {
+                "key" : "TCL",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 1200.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "key" : "白色",
+          "doc_count" : 1,
+          "avg_price" : {
+            "value" : 2100.0
+          },
+          "group_by_brand" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "TCL",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 2100.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "key" : "黑色",
+          "doc_count" : 1,
+          "avg_price" : {
+            "value" : 4800.0
+          },
+          "group_by_brand" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "小米",
+                "doc_count" : 1,
+                "avg_price" : {
+                  "value" : 4800.0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+
+```
+
+
+
+### 求每个颜色的最大价格、最小价格、平均价格和总价格
+
+```json
+GET /tvs/_search
+{
+  "query": 
+  {
+    "match_all": {}
+  },
+  "size": 0, 
+  "aggs": 
+  {
+    "group_by_color": 
+    {
+      "terms": 
+      {
+        "field": "color"
+      },
+      "aggs": 
+      {
+        "max_price": 
+        {
+          "max": 
+          {
+            "field": "price"
+          }
+        },
+        "min_price":
+        {
+          "min": 
+          {
+            "field": "price"
+          }
+        },
+        "avg_price":
+        {
+          "avg": 
+          {
+            "field": "price"
+          }
+        },
+        "sum_price":
+        {
+          "sum": 
+          {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 14,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  },
+  "aggregations" : {
+    "group_by_color" : {
+      "doc_count_error_upper_bound" : 0,
+      "sum_other_doc_count" : 0,
+      "buckets" : [
+        {
+          "key" : "红色",
+          "doc_count" : 5,
+          "max_price" : {
+            "value" : 8500.0
+          },
+          "min_price" : {
+            "value" : 1000.0
+          },
+          "avg_price" : {
+            "value" : 4300.0
+          },
+          "sum_price" : {
+            "value" : 21500.0
+          }
+        },
+        {
+          "key" : "蓝色",
+          "doc_count" : 4,
+          "max_price" : {
+            "value" : 6100.0
+          },
+          "min_price" : {
+            "value" : 1500.0
+          },
+          "avg_price" : {
+            "value" : 3575.0
+          },
+          "sum_price" : {
+            "value" : 14300.0
+          }
+        },
+        {
+          "key" : "绿色",
+          "doc_count" : 3,
+          "max_price" : {
+            "value" : 4500.0
+          },
+          "min_price" : {
+            "value" : 1200.0
+          },
+          "avg_price" : {
+            "value" : 2900.0
+          },
+          "sum_price" : {
+            "value" : 8700.0
+          }
+        },
+        {
+          "key" : "白色",
+          "doc_count" : 1,
+          "max_price" : {
+            "value" : 2100.0
+          },
+          "min_price" : {
+            "value" : 2100.0
+          },
+          "avg_price" : {
+            "value" : 2100.0
+          },
+          "sum_price" : {
+            "value" : 2100.0
+          }
+        },
+        {
+          "key" : "黑色",
+          "doc_count" : 1,
+          "max_price" : {
+            "value" : 4800.0
+          },
+          "min_price" : {
+            "value" : 4800.0
+          },
+          "avg_price" : {
+            "value" : 4800.0
+          },
+          "sum_price" : {
+            "value" : 4800.0
+          }
+        }
+      ]
+    }
+  }
+}
+
+```
+
+
+
+### 划分范围 histogram
+
+```json
+```
+
