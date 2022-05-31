@@ -22504,3 +22504,702 @@ public class ElasticSearchTest
 
 ### http请求
 
+```json
+POST /_sql?format=txt
+{
+  "query": """
+  SELECT * FROM "tvs"
+  """
+}
+```
+
+返回：
+
+```
+     brand     |     color     |     price     |       sold_date        
+---------------+---------------+---------------+------------------------
+长虹             |红色             |1000           |2019-10-28T00:00:00.000Z
+长虹             |红色             |2000           |2019-11-05T00:00:00.000Z
+小米             |绿色             |3000           |2019-05-18T00:00:00.000Z
+TCL            |蓝色             |1500           |2019-07-02T00:00:00.000Z
+TCL            |绿色             |1200           |2019-08-19T00:00:00.000Z
+长虹             |红色             |2000           |2019-11-05T00:00:00.000Z
+三星             |红色             |8000           |2020-01-01T00:00:00.000Z
+小米             |蓝色             |2500           |2020-02-12T00:00:00.000Z
+小米             |绿色             |4500           |2020-04-22T00:00:00.000Z
+三星             |蓝色             |6100           |2020-05-16T00:00:00.000Z
+TCL            |白色             |2100           |2020-05-17T00:00:00.000Z
+小米             |红色             |8500           |2020-05-19T00:00:00.000Z
+长虹             |蓝色             |4200           |2020-05-23T00:00:00.000Z
+小米             |黑色             |4800           |2020-06-10T00:00:00.000Z
+
+```
+
+
+
+### 使用客户端
+
+1. 进入elasticsearch安装目录
+2. 进入bin目录
+3. 找到elasticsearch-sql-cli.bat文件
+4. 运行elasticsearch-sql-cli.bat文件，或者在此目录下打开控制台，输入elasticsearch-sql-cli运行
+
+
+
+运行结果：
+
+```sh
+                       asticElasticE
+                     ElasticE  sticEla
+          sticEl  ticEl            Elast
+        lasti Elasti                   tic
+      cEl       ast                     icE
+     icE        as                       cEl
+     icE        as                       cEl
+     icEla     las                        El
+   sticElasticElast                     icElas
+ las           last                    ticElast
+El              asti                 asti    stic
+El              asticEla           Elas        icE
+El            Elas  cElasticE   ticEl           cE
+Ela        ticEl         ticElasti              cE
+ las     astic               last              icE
+   sticElas                   asti           stic
+     icEl                      sticElasticElast
+     icE                       sticE   ticEla
+     icE                       sti       cEla
+     icEl                      sti        Ela
+      cEl                      sti       cEl
+       Ela                    astic    ticE
+         asti               ElasticElasti
+           ticElasti  lasticElas
+              ElasticElast
+
+                       SQL
+                      8.1.3
+
+sql>
+```
+
+
+
+5. 测试输入
+
+```sh
+select * from tvs;
+```
+
+结果：
+
+```sh
+                       asticElasticE
+                     ElasticE  sticEla
+          sticEl  ticEl            Elast
+        lasti Elasti                   tic
+      cEl       ast                     icE
+     icE        as                       cEl
+     icE        as                       cEl
+     icEla     las                        El
+   sticElasticElast                     icElas
+ las           last                    ticElast
+El              asti                 asti    stic
+El              asticEla           Elas        icE
+El            Elas  cElasticE   ticEl           cE
+Ela        ticEl         ticElasti              cE
+ las     astic               last              icE
+   sticElas                   asti           stic
+     icEl                      sticElasticElast
+     icE                       sticE   ticEla
+     icE                       sti       cEla
+     icEl                      sti        Ela
+      cEl                      sti       cEl
+       Ela                    astic    ticE
+         asti               ElasticElasti
+           ticElasti  lasticElas
+              ElasticElast
+
+                       SQL
+                      8.1.3
+
+sql> select * from tvs;
+     brand     |     color     |     price     |       sold_date
+---------------+---------------+---------------+------------------------
+长虹             |红色             |1000           |2019-10-28T00:00:00.000Z
+长虹             |红色             |2000           |2019-11-05T00:00:00.000Z
+小米             |绿色             |3000           |2019-05-18T00:00:00.000Z
+TCL            |蓝色             |1500           |2019-07-02T00:00:00.000Z
+TCL            |绿色             |1200           |2019-08-19T00:00:00.000Z
+长虹             |红色             |2000           |2019-11-05T00:00:00.000Z
+三星             |红色             |8000           |2020-01-01T00:00:00.000Z
+小米             |蓝色             |2500           |2020-02-12T00:00:00.000Z
+小米             |绿色             |4500           |2020-04-22T00:00:00.000Z
+三星             |蓝色             |6100           |2020-05-16T00:00:00.000Z
+TCL            |白色             |2100           |2020-05-17T00:00:00.000Z
+小米             |红色             |8500           |2020-05-19T00:00:00.000Z
+长虹             |蓝色             |4200           |2020-05-23T00:00:00.000Z
+小米             |黑色             |4800           |2020-06-10T00:00:00.000Z
+
+sql>
+```
+
+
+
+
+
+## 显示方式
+
+### txt
+
+```json
+POST /_sql?format=txt
+{
+  "query": """
+  SELECT * FROM "tvs"
+  """
+}
+
+```
+
+结果：
+
+```
+     brand     |     color     |     price     |       sold_date        
+---------------+---------------+---------------+------------------------
+长虹             |红色             |1000           |2019-10-28T00:00:00.000Z
+长虹             |红色             |2000           |2019-11-05T00:00:00.000Z
+小米             |绿色             |3000           |2019-05-18T00:00:00.000Z
+TCL            |蓝色             |1500           |2019-07-02T00:00:00.000Z
+TCL            |绿色             |1200           |2019-08-19T00:00:00.000Z
+长虹             |红色             |2000           |2019-11-05T00:00:00.000Z
+三星             |红色             |8000           |2020-01-01T00:00:00.000Z
+小米             |蓝色             |2500           |2020-02-12T00:00:00.000Z
+小米             |绿色             |4500           |2020-04-22T00:00:00.000Z
+三星             |蓝色             |6100           |2020-05-16T00:00:00.000Z
+TCL            |白色             |2100           |2020-05-17T00:00:00.000Z
+小米             |红色             |8500           |2020-05-19T00:00:00.000Z
+长虹             |蓝色             |4200           |2020-05-23T00:00:00.000Z
+小米             |黑色             |4800           |2020-06-10T00:00:00.000Z
+
+```
+
+
+
+### csv
+
+```json
+POST /_sql?format=csv
+{
+  "query": """
+  SELECT * FROM "tvs"
+  """
+}
+```
+
+结果：
+
+```
+brand,color,price,sold_date
+长虹,红色,1000,2019-10-28T00:00:00.000Z
+长虹,红色,2000,2019-11-05T00:00:00.000Z
+小米,绿色,3000,2019-05-18T00:00:00.000Z
+TCL,蓝色,1500,2019-07-02T00:00:00.000Z
+TCL,绿色,1200,2019-08-19T00:00:00.000Z
+长虹,红色,2000,2019-11-05T00:00:00.000Z
+三星,红色,8000,2020-01-01T00:00:00.000Z
+小米,蓝色,2500,2020-02-12T00:00:00.000Z
+小米,绿色,4500,2020-04-22T00:00:00.000Z
+三星,蓝色,6100,2020-05-16T00:00:00.000Z
+TCL,白色,2100,2020-05-17T00:00:00.000Z
+小米,红色,8500,2020-05-19T00:00:00.000Z
+长虹,蓝色,4200,2020-05-23T00:00:00.000Z
+小米,黑色,4800,2020-06-10T00:00:00.000Z
+
+```
+
+
+
+### json
+
+```json
+POST /_sql?format=json
+{
+  "query": """
+  SELECT * FROM "tvs"
+  """
+}
+```
+
+结果：
+
+```json
+{
+  "columns" : [
+    {
+      "name" : "brand",
+      "type" : "keyword"
+    },
+    {
+      "name" : "color",
+      "type" : "keyword"
+    },
+    {
+      "name" : "price",
+      "type" : "long"
+    },
+    {
+      "name" : "sold_date",
+      "type" : "datetime"
+    }
+  ],
+  "rows" : [
+    [
+      "长虹",
+      "红色",
+      1000,
+      "2019-10-28T00:00:00.000Z"
+    ],
+    [
+      "长虹",
+      "红色",
+      2000,
+      "2019-11-05T00:00:00.000Z"
+    ],
+    [
+      "小米",
+      "绿色",
+      3000,
+      "2019-05-18T00:00:00.000Z"
+    ],
+    [
+      "TCL",
+      "蓝色",
+      1500,
+      "2019-07-02T00:00:00.000Z"
+    ],
+    [
+      "TCL",
+      "绿色",
+      1200,
+      "2019-08-19T00:00:00.000Z"
+    ],
+    [
+      "长虹",
+      "红色",
+      2000,
+      "2019-11-05T00:00:00.000Z"
+    ],
+    [
+      "三星",
+      "红色",
+      8000,
+      "2020-01-01T00:00:00.000Z"
+    ],
+    [
+      "小米",
+      "蓝色",
+      2500,
+      "2020-02-12T00:00:00.000Z"
+    ],
+    [
+      "小米",
+      "绿色",
+      4500,
+      "2020-04-22T00:00:00.000Z"
+    ],
+    [
+      "三星",
+      "蓝色",
+      6100,
+      "2020-05-16T00:00:00.000Z"
+    ],
+    [
+      "TCL",
+      "白色",
+      2100,
+      "2020-05-17T00:00:00.000Z"
+    ],
+    [
+      "小米",
+      "红色",
+      8500,
+      "2020-05-19T00:00:00.000Z"
+    ],
+    [
+      "长虹",
+      "蓝色",
+      4200,
+      "2020-05-23T00:00:00.000Z"
+    ],
+    [
+      "小米",
+      "黑色",
+      4800,
+      "2020-06-10T00:00:00.000Z"
+    ]
+  ]
+}
+
+```
+
+
+
+### tsv
+
+```json
+POST /_sql?format=tsv
+{
+  "query": """
+  SELECT * FROM "tvs"
+  """
+}
+
+```
+
+结果：
+
+```
+brand	color	price	sold_date
+长虹	红色	1000	2019-10-28T00:00:00.000Z
+长虹	红色	2000	2019-11-05T00:00:00.000Z
+小米	绿色	3000	2019-05-18T00:00:00.000Z
+TCL	蓝色	1500	2019-07-02T00:00:00.000Z
+TCL	绿色	1200	2019-08-19T00:00:00.000Z
+长虹	红色	2000	2019-11-05T00:00:00.000Z
+三星	红色	8000	2020-01-01T00:00:00.000Z
+小米	蓝色	2500	2020-02-12T00:00:00.000Z
+小米	绿色	4500	2020-04-22T00:00:00.000Z
+三星	蓝色	6100	2020-05-16T00:00:00.000Z
+TCL	白色	2100	2020-05-17T00:00:00.000Z
+小米	红色	8500	2020-05-19T00:00:00.000Z
+长虹	蓝色	4200	2020-05-23T00:00:00.000Z
+小米	黑色	4800	2020-06-10T00:00:00.000Z
+
+```
+
+
+
+
+
+### yaml
+
+```json
+POST /_sql?format=yaml
+{
+  "query": """
+  SELECT * FROM "tvs"
+  """
+}
+```
+
+结果：
+
+```yaml
+---
+columns:
+- name: "brand"
+  type: "keyword"
+- name: "color"
+  type: "keyword"
+- name: "price"
+  type: "long"
+- name: "sold_date"
+  type: "datetime"
+rows:
+- - "长虹"
+  - "红色"
+  - 1000
+  - "2019-10-28T00:00:00.000Z"
+- - "长虹"
+  - "红色"
+  - 2000
+  - "2019-11-05T00:00:00.000Z"
+- - "小米"
+  - "绿色"
+  - 3000
+  - "2019-05-18T00:00:00.000Z"
+- - "TCL"
+  - "蓝色"
+  - 1500
+  - "2019-07-02T00:00:00.000Z"
+- - "TCL"
+  - "绿色"
+  - 1200
+  - "2019-08-19T00:00:00.000Z"
+- - "长虹"
+  - "红色"
+  - 2000
+  - "2019-11-05T00:00:00.000Z"
+- - "三星"
+  - "红色"
+  - 8000
+  - "2020-01-01T00:00:00.000Z"
+- - "小米"
+  - "蓝色"
+  - 2500
+  - "2020-02-12T00:00:00.000Z"
+- - "小米"
+  - "绿色"
+  - 4500
+  - "2020-04-22T00:00:00.000Z"
+- - "三星"
+  - "蓝色"
+  - 6100
+  - "2020-05-16T00:00:00.000Z"
+- - "TCL"
+  - "白色"
+  - 2100
+  - "2020-05-17T00:00:00.000Z"
+- - "小米"
+  - "红色"
+  - 8500
+  - "2020-05-19T00:00:00.000Z"
+- - "长虹"
+  - "蓝色"
+  - 4200
+  - "2020-05-23T00:00:00.000Z"
+- - "小米"
+  - "黑色"
+  - 4800
+  - "2020-06-10T00:00:00.000Z"
+
+```
+
+
+
+
+
+### cbor
+
+```json
+POST /_sql?format=cbor
+{
+  "query": """
+  SELECT * FROM "tvs"
+  """
+}
+```
+
+结果：
+
+```
+�gcolumns��dnameebranddtypegkeyword��dnameecolordtypegkeyword��dnameepricedtypedlong��dnameisold_datedtypehdatetime��drows��f长虹f红色�x2019-10-28T00:00:00.000Z��f长虹f红色�x2019-11-05T00:00:00.000Z��f小米f绿色�x2019-05-18T00:00:00.000Z��cTCLf蓝色�x2019-07-02T00:00:00.000Z��cTCLf绿色�x2019-08-19T00:00:00.000Z��f长虹f红色�x2019-11-05T00:00:00.000Z��f三星f红色@x2020-01-01T00:00:00.000Z��f小米f蓝色	�x2020-02-12T00:00:00.000Z��f小米f绿色�x2020-04-22T00:00:00.000Z��f三星f蓝色�x2020-05-16T00:00:00.000Z��cTCLf白色4x2020-05-17T00:00:00.000Z��f小米f红色!4x2020-05-19T00:00:00.000Z��f长虹f蓝色hx2020-05-23T00:00:00.000Z��f小米f黑色�x2020-06-10T00:00:00.000Z���
+```
+
+
+
+
+
+### smile
+
+```json
+POST /_sql?format=smile
+{
+  "query": """
+  SELECT * FROM "tvs"
+  """
+}
+```
+
+结果：
+
+```
+:)
+��columns���nameDbrand�typeFkeyword��ADcolorBFkeyword��ADpriceBClong��AHsold_dateBGdatetime���rows���长虹�红色$�W2019-10-28T00:00:00.000Z���长虹�红色$>�W2019-11-05T00:00:00.000Z���小米�绿色$]�W2019-05-18T00:00:00.000Z��BTCL�蓝色$.�W2019-07-02T00:00:00.000Z��BTCL�绿色$%�W2019-08-19T00:00:00.000Z���长虹�红色$>�W2019-11-05T00:00:00.000Z���三星�红色$z�W2020-01-01T00:00:00.000Z���小米�蓝色$N�W2020-02-12T00:00:00.000Z���小米�绿色$�W2020-04-22T00:00:00.000Z���三星�蓝色$>�W2020-05-16T00:00:00.000Z��BTCL�白色$A�W2020-05-17T00:00:00.000Z���小米�红色$	�W2020-05-19T00:00:00.000Z���长虹�蓝色$�W2020-05-23T00:00:00.000Z���小米�黑色$�W2020-06-10T00:00:00.000Z���
+```
+
+
+
+
+
+
+
+## sql翻译
+
+```json
+POST /_sql/translate
+{
+  "query": """
+  SELECT * FROM "tvs"
+  """
+}
+```
+
+结果：
+
+```json
+{
+  "size" : 1000,
+  "_source" : false,
+  "fields" : [
+    {
+      "field" : "brand"
+    },
+    {
+      "field" : "color"
+    },
+    {
+      "field" : "price"
+    },
+    {
+      "field" : "sold_date",
+      "format" : "strict_date_optional_time_nanos"
+    }
+  ],
+  "sort" : [
+    {
+      "_doc" : {
+        "order" : "asc"
+      }
+    }
+  ]
+}
+
+```
+
+
+
+
+
+## sql与DSL结合
+
+
+
+```json
+POST /_sql?format=txt
+{
+    "query": "SELECT * FROM tvs",
+    "filter": {
+        "range": 
+        {
+            "price": 
+            {
+                "gte" : 1200,
+                "lte" : 3000
+            }
+        }
+    }
+}
+```
+
+结果：
+
+```
+     brand     |     color     |     price     |       sold_date        
+---------------+---------------+---------------+------------------------
+长虹             |红色             |2000           |2019-11-05T00:00:00.000Z
+小米             |绿色             |3000           |2019-05-18T00:00:00.000Z
+TCL            |蓝色             |1500           |2019-07-02T00:00:00.000Z
+TCL            |绿色             |1200           |2019-08-19T00:00:00.000Z
+长虹             |红色             |2000           |2019-11-05T00:00:00.000Z
+小米             |蓝色             |2500           |2020-02-12T00:00:00.000Z
+TCL            |白色             |2100           |2020-05-17T00:00:00.000Z
+
+```
+
+
+
+
+
+
+
+## java API实现
+
+```java
+package mao.elasticsearch_jdbc_sql;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.sql.*;
+
+/**
+ * Project name(项目名称)：elasticsearch_JDBC_sql
+ * Package(包名): mao.elasticsearch_jdbc_sql
+ * Class(类名): ElasticSearchJDBCTest
+ * Author(作者）: mao
+ * Author QQ：1296193245
+ * GitHub：https://github.com/maomao124/
+ * Date(创建日期)： 2022/5/30
+ * Time(创建时间)： 22:34
+ * Version(版本): 1.0
+ * Description(描述)： ElasticSearchJDBCTest
+ */
+
+@SpringBootTest
+public class ElasticSearchJDBCTest
+{
+    private Connection connection;
+
+    @BeforeEach
+    void setUp() throws SQLException
+    {
+        //创建链接
+        connection = DriverManager.getConnection("jdbc:es://http://localhost:9200");
+    }
+
+    @AfterEach
+    void tearDown() throws SQLException
+    {
+        //关闭链接
+        connection.close();
+    }
+
+    @Test
+    void select() throws SQLException
+    {
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("select * from tvs");
+        while (resultSet.next())
+        {
+            System.out.println(resultSet.getString(1));
+            System.out.println(resultSet.getString(2));
+            System.out.println(resultSet.getString(3));
+            System.out.println(resultSet.getString(4));
+            System.out.println("-----");
+        }
+    }
+}
+
+```
+
+
+
+
+
+
+
+
+
+# Logstash
+
+## 什么是Logstash
+
+logstash是一个数据抽取工具，将数据从一个地方转移到另一个地方。如hadoop生态圈的sqoop等。下载地址：https://www.elastic.co/cn/downloads/logstash
+
+logstash之所以功能强大和流行，还与其丰富的过滤器插件是分不开的，过滤器提供的并不单单是过滤的功能，还可以对进入过滤器的原始数据进行复杂的逻辑处理，甚至添加独特的事件到后续流程中。
+	Logstash配置文件有如下三部分组成，其中input、output部分是必须配置，filter部分是可选配置，而filter就是过滤器插件，可以在这部分实现各种日志过滤功能。
+
+
+
+## 配置文件
+
+```
+input {
+    #输入插件
+}
+filter {
+    #过滤匹配插件
+}
+output {
+    #输出插件
+}
+```
+
+
+
+
+
+## 启动操作
+
