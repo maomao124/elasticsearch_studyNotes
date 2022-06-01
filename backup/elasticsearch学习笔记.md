@@ -23203,3 +23203,584 @@ output {
 
 ## 启动操作
 
+```sh
+logstash -e 'input{stdin{}} output{stdout{}}'
+```
+
+
+
+```sh
+PS H:\opensoft\logstash-8.1.3\bin> .\logstash -e 'input{stdin{}} output{stdout{}}'
+"Using bundled JDK: H:\opensoft\logstash-8.1.3\jdk\bin\java.exe"
+OpenJDK 64-Bit Server VM warning: Option UseConcMarkSweepGC was deprecated in version 9.0 and will likely be removed in a future release.
+Sending Logstash logs to H:/opensoft/logstash-8.1.3/logs which is now configured via log4j2.properties
+[2022-05-31T13:01:22,223][INFO ][logstash.runner          ] Log4j configuration path used is: H:\opensoft\logstash-8.1.3\config\log4j2.properties
+[2022-05-31T13:01:22,267][WARN ][logstash.runner          ] The use of JAVA_HOME has been deprecated. Logstash 8.0 and later ignores JAVA_HOME and uses the bundled JDK. Running Logstash with the bundled JDK is recommended. The bundled JDK has been verified to work with each specific version of Logstash, and generally provides best performance and reliability. If you have compelling reasons for using your own JDK (organizational-specific compliance requirements, for example), you can configure LS_JAVA_HOME to use that version instead.
+[2022-05-31T13:01:22,268][INFO ][logstash.runner          ] Starting Logstash {"logstash.version"=>"8.1.3", "jruby.version"=>"jruby 9.2.20.1 (2.5.8) 2021-11-30 2a2962fbd1 OpenJDK 64-Bit Server VM 11.0.14.1+1 on 11.0.14.1+1 +indy +jit [mswin32-x86_64]"}
+[2022-05-31T13:01:22,270][INFO ][logstash.runner          ] JVM bootstrap flags: [-Xms1g, -Xmx4g, -XX:+UseConcMarkSweepGC, -XX:CMSInitiatingOccupancyFraction=75, -XX:+UseCMSInitiatingOccupancyOnly, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djruby.compile.invokedynamic=true, -Djruby.jit.threshold=0, -Djruby.regexp.interruptible=true, -XX:+HeapDumpOnOutOfMemoryError, -Djava.security.egd=file:/dev/urandom, -Dlog4j2.isThreadContextMapInheritable=true, --add-opens=java.base/java.security=ALL-UNNAMED, --add-opens=java.base/java.io=ALL-UNNAMED, --add-opens=java.base/java.nio.channels=ALL-UNNAMED, --add-opens=java.base/sun.nio.ch=ALL-UNNAMED, --add-opens=java.management/sun.management=ALL-UNNAMED]
+[2022-05-31T13:01:22,345][WARN ][logstash.config.source.multilocal] Ignoring the 'pipelines.yml' file because modules or command line options are specified
+[2022-05-31T13:01:22,370][INFO ][logstash.agent           ] No persistent UUID file found. Generating new UUID {:uuid=>"494789aa-3671-4c49-9cf9-048e1e097ec6", :path=>"H:/opensoft/logstash-8.1.3/data/uuid"}
+[2022-05-31T13:01:25,188][INFO ][logstash.agent           ] Successfully started Logstash API endpoint {:port=>9600, :ssl_enabled=>false}
+[2022-05-31T13:01:25,538][INFO ][org.reflections.Reflections] Reflections took 61 ms to scan 1 urls, producing 120 keys and 419 values
+[2022-05-31T13:01:26,171][INFO ][logstash.javapipeline    ] Pipeline `main` is configured with `pipeline.ecs_compatibility: v8` setting. All plugins in this pipeline will default to `ecs_compatibility => v8` unless explicitly configured otherwise.
+[2022-05-31T13:01:26,259][INFO ][logstash.javapipeline    ][main] Starting pipeline {:pipeline_id=>"main", "pipeline.workers"=>16, "pipeline.batch.size"=>125, "pipeline.batch.delay"=>50, "pipeline.max_inflight"=>2000, "pipeline.sources"=>["config string"], :thread=>"#<Thread:0x6876925e run>"}
+[2022-05-31T13:01:27,088][INFO ][logstash.javapipeline    ][main] Pipeline Java execution initialization time {"seconds"=>0.83}
+[2022-05-31T13:01:27,247][INFO ][logstash.javapipeline    ][main] Pipeline started {"pipeline.id"=>"main"}
+The stdin plugin is now waiting for input:
+[2022-05-31T13:01:27,289][INFO ][logstash.agent           ] Pipelines running {:count=>1, :running_pipelines=>[:main], :non_running_pipelines=>[]}
+test
+{
+      "@version" => "1",
+         "event" => {
+        "original" => "test\r"
+    },
+          "host" => {
+        "hostname" => "mao"
+    },
+       "message" => "test\r",
+    "@timestamp" => 2022-05-31T05:01:40.200831200Z
+}
+
+```
+
+
+
+启动
+
+```sh
+logstash.bat -f ../config/test.conf
+```
+
+
+
+## Logstash输入插件
+
+
+| Plugin                                                       | Description                                                  | Github repository                                            |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [azure_event_hubs](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-azure_event_hubs.html) | Receives events from Azure Event Hubs                        | [azure_event_hubs](https://github.com/logstash-plugins/logstash-input-azure_event_hubs) |
+| [beats](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-beats.html) | Receives events from the Elastic Beats framework             | [logstash-input-beats](https://github.com/logstash-plugins/logstash-input-beats) |
+| [cloudwatch](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-cloudwatch.html) | Pulls events from the Amazon Web Services CloudWatch API     | [logstash-input-cloudwatch](https://github.com/logstash-plugins/logstash-input-cloudwatch) |
+| [couchdb_changes](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-couchdb_changes.html) | Streams events from CouchDB’s `_changes` URI                 | [logstash-input-couchdb_changes](https://github.com/logstash-plugins/logstash-input-couchdb_changes) |
+| [dead_letter_queue](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-dead_letter_queue.html) | read events from Logstash’s dead letter queue                | [logstash-input-dead_letter_queue](https://github.com/logstash-plugins/logstash-input-dead_letter_queue) |
+| [elastic_agent](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-elastic_agent.html) | Receives events from the Elastic Agent framework             | [logstash-input-beats](https://github.com/logstash-plugins/logstash-input-beats) (shared) |
+| [elasticsearch](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-elasticsearch.html) | Reads query results from an Elasticsearch cluster            | [logstash-input-elasticsearch](https://github.com/logstash-plugins/logstash-input-elasticsearch) |
+| [exec](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-exec.html) | Captures the output of a shell command as an event           | [logstash-input-exec](https://github.com/logstash-plugins/logstash-input-exec) |
+| [file](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-file.html) | Streams events from files                                    | [logstash-input-file](https://github.com/logstash-plugins/logstash-input-file) |
+| [ganglia](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-ganglia.html) | Reads Ganglia packets over UDP                               | [logstash-input-ganglia](https://github.com/logstash-plugins/logstash-input-ganglia) |
+| [gelf](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-gelf.html) | Reads GELF-format messages from Graylog2 as events           | [logstash-input-gelf](https://github.com/logstash-plugins/logstash-input-gelf) |
+| [generator](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-generator.html) | Generates random log events for test purposes                | [logstash-input-generator](https://github.com/logstash-plugins/logstash-input-generator) |
+| [github](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-github.html) | Reads events from a GitHub webhook                           | [logstash-input-github](https://github.com/logstash-plugins/logstash-input-github) |
+| [google_cloud_storage](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-google_cloud_storage.html) | Extract events from files in a Google Cloud Storage bucket   | [logstash-input-google_cloud_storage](https://github.com/logstash-plugins/logstash-input-google_cloud_storage) |
+| [google_pubsub](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-google_pubsub.html) | Consume events from a Google Cloud PubSub service            | [logstash-input-google_pubsub](https://github.com/logstash-plugins/logstash-input-google_pubsub) |
+| [graphite](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-graphite.html) | Reads metrics from the `graphite` tool                       | [logstash-input-graphite](https://github.com/logstash-plugins/logstash-input-graphite) |
+| [heartbeat](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-heartbeat.html) | Generates heartbeat events for testing                       | [logstash-input-heartbeat](https://github.com/logstash-plugins/logstash-input-heartbeat) |
+| [http](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-http.html) | Receives events over HTTP or HTTPS                           | [logstash-input-http](https://github.com/logstash-plugins/logstash-input-http) |
+| [http_poller](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-http_poller.html) | Decodes the output of an HTTP API into events                | [logstash-input-http_poller](https://github.com/logstash-plugins/logstash-input-http_poller) |
+| [imap](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-imap.html) | Reads mail from an IMAP server                               | [logstash-input-imap](https://github.com/logstash-plugins/logstash-input-imap) |
+| [irc](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-irc.html) | Reads events from an IRC server                              | [logstash-input-irc](https://github.com/logstash-plugins/logstash-input-irc) |
+| [java_generator](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-java_generator.html) | Generates synthetic log events                               | [core plugin](https://github.com/elastic/logstash/blob/8.2/logstash-core/src/main/java/org/logstash/plugins/inputs/Generator.java) |
+| [java_stdin](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-java_stdin.html) | Reads events from standard input                             | [core plugin](https://github.com/elastic/logstash/blob/8.2/logstash-core/src/main/java/org/logstash/plugins/inputs/Stdin.java) |
+| [jdbc](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-jdbc.html) | Creates events from JDBC data                                | [logstash-integration-jdbc](https://github.com/logstash-plugins/logstash-integration-jdbc) |
+| [jms](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-jms.html) | Reads events from a Jms Broker                               | [logstash-input-jms](https://github.com/logstash-plugins/logstash-input-jms) |
+| [jmx](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-jmx.html) | Retrieves metrics from remote Java applications over JMX     | [logstash-input-jmx](https://github.com/logstash-plugins/logstash-input-jmx) |
+| [kafka](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html) | Reads events from a Kafka topic                              | [logstash-integration-kafka](https://github.com/logstash-plugins/logstash-integration-kafka) |
+| [kinesis](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kinesis.html) | Receives events through an AWS Kinesis stream                | [logstash-input-kinesis](https://github.com/logstash-plugins/logstash-input-kinesis) |
+| [log4j](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-log4j.html) | Reads events over a TCP socket from a Log4j `SocketAppender` object | [logstash-input-log4j](https://github.com/logstash-plugins/logstash-input-log4j) |
+| [lumberjack](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-lumberjack.html) | Receives events using the Lumberjack protocl                 | [logstash-input-lumberjack](https://github.com/logstash-plugins/logstash-input-lumberjack) |
+| [meetup](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-meetup.html) | Captures the output of command line tools as an event        | [logstash-input-meetup](https://github.com/logstash-plugins/logstash-input-meetup) |
+| [pipe](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-pipe.html) | Streams events from a long-running command pipe              | [logstash-input-pipe](https://github.com/logstash-plugins/logstash-input-pipe) |
+| [puppet_facter](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-puppet_facter.html) | Receives facts from a Puppet server                          | [logstash-input-puppet_facter](https://github.com/logstash-plugins/logstash-input-puppet_facter) |
+| [rabbitmq](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-rabbitmq.html) | Pulls events from a RabbitMQ exchange                        | [logstash-integration-rabbitmq](https://github.com/logstash-plugins/logstash-integration-rabbitmq) |
+| [redis](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-redis.html) | Reads events from a Redis instance                           | [logstash-input-redis](https://github.com/logstash-plugins/logstash-input-redis) |
+| [relp](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-relp.html) | Receives RELP events over a TCP socket                       | [logstash-input-relp](https://github.com/logstash-plugins/logstash-input-relp) |
+| [rss](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-rss.html) | Captures the output of command line tools as an event        | [logstash-input-rss](https://github.com/logstash-plugins/logstash-input-rss) |
+| [s3](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-s3.html) | Streams events from files in a S3 bucket                     | [logstash-input-s3](https://github.com/logstash-plugins/logstash-input-s3) |
+| [s3-sns-sqs](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-s3-sns-sqs.html) | Reads logs from AWS S3 buckets using sqs                     | [logstash-input-s3-sns-sqs](https://github.com/cherweg/logstash-input-s3-sns-sqs) |
+| [salesforce](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-salesforce.html) | Creates events based on a Salesforce SOQL query              | [logstash-input-salesforce](https://github.com/logstash-plugins/logstash-input-salesforce) |
+| [snmp](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-snmp.html) | Polls network devices using Simple Network Management Protocol (SNMP) | [logstash-input-snmp](https://github.com/logstash-plugins/logstash-input-snmp) |
+| [snmptrap](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-snmptrap.html) | Creates events based on SNMP trap messages                   | [logstash-input-snmptrap](https://github.com/logstash-plugins/logstash-input-snmptrap) |
+| [sqlite](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-sqlite.html) | Creates events based on rows in an SQLite database           | [logstash-input-sqlite](https://github.com/logstash-plugins/logstash-input-sqlite) |
+| [sqs](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-sqs.html) | Pulls events from an Amazon Web Services Simple Queue Service queue | [logstash-input-sqs](https://github.com/logstash-plugins/logstash-input-sqs) |
+| [stdin](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-stdin.html) | Reads events from standard input                             | [logstash-input-stdin](https://github.com/logstash-plugins/logstash-input-stdin) |
+| [stomp](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-stomp.html) | Creates events received with the STOMP protocol              | [logstash-input-stomp](https://github.com/logstash-plugins/logstash-input-stomp) |
+| [syslog](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-syslog.html) | Reads syslog messages as events                              | [logstash-input-syslog](https://github.com/logstash-plugins/logstash-input-syslog) |
+| [tcp](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-tcp.html) | Reads events from a TCP socket                               | [logstash-input-tcp](https://github.com/logstash-plugins/logstash-input-tcp) |
+| [twitter](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-twitter.html) | Reads events from the Twitter Streaming API                  | [logstash-input-twitter](https://github.com/logstash-plugins/logstash-input-twitter) |
+| [udp](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-udp.html) | Reads events over UDP                                        | [logstash-input-udp](https://github.com/logstash-plugins/logstash-input-udp) |
+| [unix](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-unix.html) | Reads events over a UNIX socket                              | [logstash-input-unix](https://github.com/logstash-plugins/logstash-input-unix) |
+| [varnishlog](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-varnishlog.html) | Reads from the `varnish` cache shared memory log             | [logstash-input-varnishlog](https://github.com/logstash-plugins/logstash-input-varnishlog) |
+| [websocket](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-websocket.html) | Reads events from a websocket                                | [logstash-input-websocket](https://github.com/logstash-plugins/logstash-input-websocket) |
+| [wmi](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-wmi.html) | Creates events based on the results of a WMI query           | [logstash-input-wmi](https://github.com/logstash-plugins/logstash-input-wmi) |
+| [xmpp](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-xmpp.html) | Receives events over the XMPP/Jabber protocol                | [logstash-input-xmpp](https://github.com/logstash-plugins/logstash-input-xmpp) |
+
+
+
+### 标准输入(Stdin)
+
+```
+input{
+    stdin{
+       
+    }
+}
+output {
+    stdout{
+        codec=>rubydebug    
+    }
+}
+```
+
+
+
+### 文件(File)
+
+```
+input {
+    file {
+        path => ["/var/*/*"]
+        start_position => "beginning"
+    }
+}
+output {
+    stdout{
+        codec=>rubydebug    
+    }
+}
+```
+
+
+
+### TCP网络数据
+
+```
+input {
+  tcp {
+    port => "端口号"
+  }
+}
+
+filter {
+  grok {
+    match => { "message" => "%{SYSLOGLINE}" }
+  }
+}
+
+output {
+    stdout{
+        codec=>rubydebug
+    }
+}
+```
+
+
+
+
+
+
+
+## Logstash过滤器插件
+
+
+
+| Plugin                                                       | Description                                                  | Github repository                                            |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [age](https://www.elastic.co/guide/en/logstash/current/plugins-filters-age.html) | Calculates the age of an event by subtracting the event timestamp from the current timestamp | [logstash-filter-age](https://github.com/logstash-plugins/logstash-filter-age) |
+| [aggregate](https://www.elastic.co/guide/en/logstash/current/plugins-filters-aggregate.html) | Aggregates information from several events originating with a single task | [logstash-filter-aggregate](https://github.com/logstash-plugins/logstash-filter-aggregate) |
+| [alter](https://www.elastic.co/guide/en/logstash/current/plugins-filters-alter.html) | Performs general alterations to fields that the `mutate` filter does not handle | [logstash-filter-alter](https://github.com/logstash-plugins/logstash-filter-alter) |
+| [bytes](https://www.elastic.co/guide/en/logstash/current/plugins-filters-bytes.html) | Parses string representations of computer storage sizes, such as "123 MB" or "5.6gb", into their numeric value in bytes | [logstash-filter-bytes](https://github.com/logstash-plugins/logstash-filter-bytes) |
+| [cidr](https://www.elastic.co/guide/en/logstash/current/plugins-filters-cidr.html) | Checks IP addresses against a list of network blocks         | [logstash-filter-cidr](https://github.com/logstash-plugins/logstash-filter-cidr) |
+| [cipher](https://www.elastic.co/guide/en/logstash/current/plugins-filters-cipher.html) | Applies or removes a cipher to an event                      | [logstash-filter-cipher](https://github.com/logstash-plugins/logstash-filter-cipher) |
+| [clone](https://www.elastic.co/guide/en/logstash/current/plugins-filters-clone.html) | Duplicates events                                            | [logstash-filter-clone](https://github.com/logstash-plugins/logstash-filter-clone) |
+| [csv](https://www.elastic.co/guide/en/logstash/current/plugins-filters-csv.html) | Parses comma-separated value data into individual fields     | [logstash-filter-csv](https://github.com/logstash-plugins/logstash-filter-csv) |
+| [date](https://www.elastic.co/guide/en/logstash/current/plugins-filters-date.html) | Parses dates from fields to use as the Logstash timestamp for an event | [logstash-filter-date](https://github.com/logstash-plugins/logstash-filter-date) |
+| [de_dot](https://www.elastic.co/guide/en/logstash/current/plugins-filters-de_dot.html) | Computationally expensive filter that removes dots from a field name | [logstash-filter-de_dot](https://github.com/logstash-plugins/logstash-filter-de_dot) |
+| [dissect](https://www.elastic.co/guide/en/logstash/current/plugins-filters-dissect.html) | Extracts unstructured event data into fields using delimiters | [logstash-filter-dissect](https://github.com/logstash-plugins/logstash-filter-dissect) |
+| [dns](https://www.elastic.co/guide/en/logstash/current/plugins-filters-dns.html) | Performs a standard or reverse DNS lookup                    | [logstash-filter-dns](https://github.com/logstash-plugins/logstash-filter-dns) |
+| [drop](https://www.elastic.co/guide/en/logstash/current/plugins-filters-drop.html) | Drops all events                                             | [logstash-filter-drop](https://github.com/logstash-plugins/logstash-filter-drop) |
+| [elapsed](https://www.elastic.co/guide/en/logstash/current/plugins-filters-elapsed.html) | Calculates the elapsed time between a pair of events         | [logstash-filter-elapsed](https://github.com/logstash-plugins/logstash-filter-elapsed) |
+| [elasticsearch](https://www.elastic.co/guide/en/logstash/current/plugins-filters-elasticsearch.html) | Copies fields from previous log events in Elasticsearch to current events | [logstash-filter-elasticsearch](https://github.com/logstash-plugins/logstash-filter-elasticsearch) |
+| [environment](https://www.elastic.co/guide/en/logstash/current/plugins-filters-environment.html) | Stores environment variables as metadata sub-fields          | [logstash-filter-environment](https://github.com/logstash-plugins/logstash-filter-environment) |
+| [extractnumbers](https://www.elastic.co/guide/en/logstash/current/plugins-filters-extractnumbers.html) | Extracts numbers from a string                               | [logstash-filter-extractnumbers](https://github.com/logstash-plugins/logstash-filter-extractnumbers) |
+| [fingerprint](https://www.elastic.co/guide/en/logstash/current/plugins-filters-fingerprint.html) | Fingerprints fields by replacing values with a consistent hash | [logstash-filter-fingerprint](https://github.com/logstash-plugins/logstash-filter-fingerprint) |
+| [geoip](https://www.elastic.co/guide/en/logstash/current/plugins-filters-geoip.html) | Adds geographical information about an IP address            | [logstash-filter-geoip](https://github.com/logstash-plugins/logstash-filter-geoip) |
+| [grok](https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html) | Parses unstructured event data into fields                   | [logstash-filter-grok](https://github.com/logstash-plugins/logstash-filter-grok) |
+| [http](https://www.elastic.co/guide/en/logstash/current/plugins-filters-http.html) | Provides integration with external web services/REST APIs    | [logstash-filter-http](https://github.com/logstash-plugins/logstash-filter-http) |
+| [i18n](https://www.elastic.co/guide/en/logstash/current/plugins-filters-i18n.html) | Removes special characters from a field                      | [logstash-filter-i18n](https://github.com/logstash-plugins/logstash-filter-i18n) |
+| [java_uuid](https://www.elastic.co/guide/en/logstash/current/plugins-filters-java_uuid.html) | Generates a UUID and adds it to each processed event         | [core plugin](https://github.com/elastic/logstash/blob/8.2/logstash-core/src/main/java/org/logstash/plugins/filters/Uuid.java) |
+| [jdbc_static](https://www.elastic.co/guide/en/logstash/current/plugins-filters-jdbc_static.html) | Enriches events with data pre-loaded from a remote database  | [logstash-integration-jdbc](https://github.com/logstash-plugins/logstash-integration-jdbc) |
+| [jdbc_streaming](https://www.elastic.co/guide/en/logstash/current/plugins-filters-jdbc_streaming.html) | Enrich events with your database data                        | [logstash-integration-jdbc](https://github.com/logstash-plugins/logstash-integration-jdbc) |
+| [json](https://www.elastic.co/guide/en/logstash/current/plugins-filters-json.html) | Parses JSON events                                           | [logstash-filter-json](https://github.com/logstash-plugins/logstash-filter-json) |
+| [json_encode](https://www.elastic.co/guide/en/logstash/current/plugins-filters-json_encode.html) | Serializes a field to JSON                                   | [logstash-filter-json_encode](https://github.com/logstash-plugins/logstash-filter-json_encode) |
+| [kv](https://www.elastic.co/guide/en/logstash/current/plugins-filters-kv.html) | Parses key-value pairs                                       | [logstash-filter-kv](https://github.com/logstash-plugins/logstash-filter-kv) |
+| [memcached](https://www.elastic.co/guide/en/logstash/current/plugins-filters-memcached.html) | Provides integration with external data in Memcached         | [logstash-filter-memcached](https://github.com/logstash-plugins/logstash-filter-memcached) |
+| [metricize](https://www.elastic.co/guide/en/logstash/current/plugins-filters-metricize.html) | Takes complex events containing a number of metrics and splits these up into multiple events, each holding a single metric | [logstash-filter-metricize](https://github.com/logstash-plugins/logstash-filter-metricize) |
+| [metrics](https://www.elastic.co/guide/en/logstash/current/plugins-filters-metrics.html) | Aggregates metrics                                           | [logstash-filter-metrics](https://github.com/logstash-plugins/logstash-filter-metrics) |
+| [mutate](https://www.elastic.co/guide/en/logstash/current/plugins-filters-mutate.html) | Performs mutations on fields                                 | [logstash-filter-mutate](https://github.com/logstash-plugins/logstash-filter-mutate) |
+| [prune](https://www.elastic.co/guide/en/logstash/current/plugins-filters-prune.html) | Prunes event data based on a list of fields to blacklist or whitelist | [logstash-filter-prune](https://github.com/logstash-plugins/logstash-filter-prune) |
+| [range](https://www.elastic.co/guide/en/logstash/current/plugins-filters-range.html) | Checks that specified fields stay within given size or length limits | [logstash-filter-range](https://github.com/logstash-plugins/logstash-filter-range) |
+| [ruby](https://www.elastic.co/guide/en/logstash/current/plugins-filters-ruby.html) | Executes arbitrary Ruby code                                 | [logstash-filter-ruby](https://github.com/logstash-plugins/logstash-filter-ruby) |
+| [sleep](https://www.elastic.co/guide/en/logstash/current/plugins-filters-sleep.html) | Sleeps for a specified time span                             | [logstash-filter-sleep](https://github.com/logstash-plugins/logstash-filter-sleep) |
+| [split](https://www.elastic.co/guide/en/logstash/current/plugins-filters-split.html) | Splits multi-line messages, strings, or arrays into distinct events | [logstash-filter-split](https://github.com/logstash-plugins/logstash-filter-split) |
+| [syslog_pri](https://www.elastic.co/guide/en/logstash/current/plugins-filters-syslog_pri.html) | Parses the `PRI` (priority) field of a `syslog` message      | [logstash-filter-syslog_pri](https://github.com/logstash-plugins/logstash-filter-syslog_pri) |
+| [threats_classifier](https://www.elastic.co/guide/en/logstash/current/plugins-filters-threats_classifier.html) | Enriches security logs with information about the attacker’s intent | [logstash-filter-threats_classifier](https://github.com/empow/logstash-filter-threats_classifier) |
+| [throttle](https://www.elastic.co/guide/en/logstash/current/plugins-filters-throttle.html) | Throttles the number of events                               | [logstash-filter-throttle](https://github.com/logstash-plugins/logstash-filter-throttle) |
+| [tld](https://www.elastic.co/guide/en/logstash/current/plugins-filters-tld.html) | Replaces the contents of the default message field with whatever you specify in the configuration | [logstash-filter-tld](https://github.com/logstash-plugins/logstash-filter-tld) |
+| [translate](https://www.elastic.co/guide/en/logstash/current/plugins-filters-translate.html) | Replaces field contents based on a hash or YAML file         | [logstash-filter-translate](https://github.com/logstash-plugins/logstash-filter-translate) |
+| [truncate](https://www.elastic.co/guide/en/logstash/current/plugins-filters-truncate.html) | Truncates fields longer than a given length                  | [logstash-filter-truncate](https://github.com/logstash-plugins/logstash-filter-truncate) |
+| [urldecode](https://www.elastic.co/guide/en/logstash/current/plugins-filters-urldecode.html) | Decodes URL-encoded fields                                   | [logstash-filter-urldecode](https://github.com/logstash-plugins/logstash-filter-urldecode) |
+| [useragent](https://www.elastic.co/guide/en/logstash/current/plugins-filters-useragent.html) | Parses user agent strings into fields                        | [logstash-filter-useragent](https://github.com/logstash-plugins/logstash-filter-useragent) |
+| [uuid](https://www.elastic.co/guide/en/logstash/current/plugins-filters-uuid.html) | Adds a UUID to events                                        | [logstash-filter-uuid](https://github.com/logstash-plugins/logstash-filter-uuid) |
+| [wurfl_device_detection](https://www.elastic.co/guide/en/logstash/current/plugins-filters-wurfl_device_detection.html) | Enriches logs with device information such as brand, model, OS | [logstash-filter-wurfl_device_detection](https://github.com/WURFL/logstash-filter-wurfl_device_detection) |
+| [xml](https://www.elastic.co/guide/en/logstash/current/plugins-filters-xml.html) | Parses XML into fields                                       | [logstash-filter-xml](https://github.com/logstash-plugins/logstash-filter-xml) |
+
+
+
+
+
+### Grok 正则捕获
+
+
+
+语法：
+
+```
+%{语法: 语义}
+```
+
+
+
+输入的内容：
+
+```
+172.16.213.132 [07/Feb/2019:16:24:19 +0800] "GET / HTTP/1.1" 403 5039
+```
+
+
+
+%{IP:clientip}匹配模式将获得的结果为：clientip: 172.16.213.132
+%{HTTPDATE:timestamp}匹配模式将获得的结果为：timestamp: 07/Feb/2018:16:24:19 +0800
+而%{QS:referrer}匹配模式将获得的结果为：referrer: "GET / HTTP/1.1"
+
+结果：
+
+```
+%{IP:clientip}\ \[%{HTTPDATE:timestamp}\]\ %{QS:referrer}\ %{NUMBER:response}\ %{NUMBER:bytes}
+```
+
+
+
+```
+input{
+    stdin{}
+}
+filter{
+    grok{
+        match => ["message","%{IP:clientip}\ \[%{HTTPDATE:timestamp}\]\ %{QS:referrer}\ %{NUMBER:response}\ %{NUMBER:bytes}"]
+    }
+}
+output{
+    stdout{
+        codec => "rubydebug"
+    }
+}
+```
+
+
+
+
+
+### 时间处理
+
+```
+filter {
+    grok {
+        match => ["message", "%{HTTPDATE:timestamp}"]
+    }
+    date {
+        match => ["timestamp", "dd/MMM/yyyy:HH:mm:ss Z"]
+    }
+}
+```
+
+
+
+
+
+### 数据修改
+
+将filed_name_1字段中所有"/"字符替换为"_"
+
+```
+filter {
+    mutate {
+        gsub => ["filed_name_1", "/" , "_"]
+    }
+}
+```
+
+
+
+
+
+### 分隔符分割字符串为数组
+
+```
+filter {
+    mutate {
+        split => ["filed_name_2", "|"]
+    }
+}
+```
+
+
+
+
+
+### 重命名字段
+
+```
+filter {
+    mutate {
+        rename => { "old_field" => "new_field" }
+    }
+}
+```
+
+
+
+
+
+### 删除字段
+
+```
+filter {
+    mutate {
+        remove_field  =>  ["timestamp"]
+    }
+}
+```
+
+
+
+
+
+### GeoIP 地址查询归类
+
+```
+filter {
+    geoip {
+        source => "ip_field"
+    }
+}
+```
+
+
+
+
+
+### 综合示例
+
+```
+input 
+{
+    stdin {}
+}
+filter 
+{
+    grok 
+    {
+        match => { "message" => "%{IP:clientip}\ \[%{HTTPDATE:timestamp}\]\ %{QS:referrer}\ %{NUMBER:response}\ %{NUMBER:bytes}" }
+        remove_field => [ "message" ]
+   }
+date 
+{
+        match => ["timestamp", "dd/MMM/yyyy:HH:mm:ss Z"]
+    }
+mutate {
+          convert => [ "response","float" ]
+           rename => { "response" => "response_new" }   
+           gsub => ["referrer","\"",""]          
+           split => ["clientip", "."]
+        }
+}
+output 
+{
+    stdout 
+    {
+        codec => "rubydebug"
+    }
+```
+
+
+
+
+
+
+
+## Logstash输出插件
+
+
+
+| Plugin                                                       |                         Description                          | Github repository                                            |
+| ------------------------------------------------------------ | :----------------------------------------------------------: | ------------------------------------------------------------ |
+| [app_search](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-elastic_app_search.html) | Sends events to the [Elastic App Search](https://www.elastic.co/app-search/) solution | [logstash-integration-elastic_enterprise_search](https://github.com/logstash-plugins/logstash-output-elastic_app_search) |
+| [boundary](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-boundary.html) |    Sends annotations to Boundary based on Logstash events    | [logstash-output-boundary](https://github.com/logstash-plugins/logstash-output-boundary) |
+| [circonus](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-circonus.html) |    Sends annotations to Circonus based on Logstash events    | [logstash-output-circonus](https://github.com/logstash-plugins/logstash-output-circonus) |
+| [cloudwatch](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-cloudwatch.html) |      Aggregates and sends metric data to AWS CloudWatch      | [logstash-output-cloudwatch](https://github.com/logstash-plugins/logstash-output-cloudwatch) |
+| [csv](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-csv.html) |         Writes events to disk in a delimited format          | [logstash-output-csv](https://github.com/logstash-plugins/logstash-output-csv) |
+| [datadog](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-datadog.html) |      Sends events to DataDogHQ based on Logstash events      | [logstash-output-datadog](https://github.com/logstash-plugins/logstash-output-datadog) |
+| [datadog_metrics](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-datadog_metrics.html) |     Sends metrics to DataDogHQ based on Logstash events      | [logstash-output-datadog_metrics](https://github.com/logstash-plugins/logstash-output-datadog_metrics) |
+| [dynatrace](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-dynatrace.html) |      Sends events to Dynatrace based on Logstash events      | [logstash-output-dynatrace](https://github.com/dynatrace-oss/logstash-output-dynatrace) |
+| [elastic_app_search](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-elastic_app_search.html) | Sends events to the [Elastic App Search](https://www.elastic.co/app-search/) solution | [logstash-integration-elastic_enterprise_search](https://github.com/logstash-plugins/logstash-output-elastic_app_search) |
+| [elastic_workplace_search](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-elastic_workplace_search.html) | Sends events to the [Elastic Workplace Search](https://www.elastic.co/enterprise-search) solution | [logstash-integration-elastic_enterprise_search](https://github.com/logstash-plugins/logstash-output-elastic_app_search) |
+| [elasticsearch](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-elasticsearch.html) |                 Stores logs in Elasticsearch                 | [logstash-output-elasticsearch](https://github.com/logstash-plugins/logstash-output-elasticsearch) |
+| [email](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-email.html) |  Sends email to a specified address when output is received  | [logstash-output-email](https://github.com/logstash-plugins/logstash-output-email) |
+| [exec](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-exec.html) |             Runs a command for a matching event              | [logstash-output-exec](https://github.com/logstash-plugins/logstash-output-exec) |
+| [file](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-file.html) |                Writes events to files on disk                | [logstash-output-file](https://github.com/logstash-plugins/logstash-output-file) |
+| [ganglia](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-ganglia.html) |             Writes metrics to Ganglia’s `gmond`              | [logstash-output-ganglia](https://github.com/logstash-plugins/logstash-output-ganglia) |
+| [gelf](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-gelf.html) |         Generates GELF formatted output for Graylog2         | [logstash-output-gelf](https://github.com/logstash-plugins/logstash-output-gelf) |
+| [google_bigquery](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-google_bigquery.html) |               Writes events to Google BigQuery               | [logstash-output-google_bigquery](https://github.com/logstash-plugins/logstash-output-google_bigquery) |
+| [google_cloud_storage](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-google_cloud_storage.html) |          Uploads log events to Google Cloud Storage          | [logstash-output-google_cloud_storage](https://github.com/logstash-plugins/logstash-output-google_cloud_storage) |
+| [google_pubsub](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-google_pubsub.html) |          Uploads log events to Google Cloud Pubsub           | [logstash-output-google_pubsub](https://github.com/logstash-plugins/logstash-output-google_pubsub) |
+| [graphite](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-graphite.html) |                  Writes metrics to Graphite                  | [logstash-output-graphite](https://github.com/logstash-plugins/logstash-output-graphite) |
+| [graphtastic](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-graphtastic.html) |                 Sends metric data on Windows                 | [logstash-output-graphtastic](https://github.com/logstash-plugins/logstash-output-graphtastic) |
+| [http](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-http.html) |       Sends events to a generic HTTP or HTTPS endpoint       | [logstash-output-http](https://github.com/logstash-plugins/logstash-output-http) |
+| [influxdb](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-influxdb.html) |                  Writes metrics to InfluxDB                  | [logstash-output-influxdb](https://github.com/logstash-plugins/logstash-output-influxdb) |
+| [irc](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-irc.html) |                     Writes events to IRC                     | [logstash-output-irc](https://github.com/logstash-plugins/logstash-output-irc) |
+| [java_stdout](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-java_stdout.html) |           Prints events to the STDOUT of the shell           | [core plugin](https://github.com/elastic/logstash/blob/8.2/logstash-core/src/main/java/org/logstash/plugins/outputs/Stdout.java) |
+| [juggernaut](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-juggernaut.html) |     Pushes messages to the Juggernaut websockets server      | [logstash-output-juggernaut](https://github.com/logstash-plugins/logstash-output-juggernaut) |
+| [kafka](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-kafka.html) |                Writes events to a Kafka topic                | [logstash-integration-kafka](https://github.com/logstash-plugins/logstash-integration-kafka) |
+| [librato](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-librato.html) | Sends metrics, annotations, and alerts to Librato based on Logstash events | [logstash-output-librato](https://github.com/logstash-plugins/logstash-output-librato) |
+| [loggly](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-loggly.html) |                     Ships logs to Loggly                     | [logstash-output-loggly](https://github.com/logstash-plugins/logstash-output-loggly) |
+| [lumberjack](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-lumberjack.html) |         Sends events using the `lumberjack` protocol         | [logstash-output-lumberjack](https://github.com/logstash-plugins/logstash-output-lumberjack) |
+| [metriccatcher](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-metriccatcher.html) |               Writes metrics to MetricCatcher                | [logstash-output-metriccatcher](https://github.com/logstash-plugins/logstash-output-metriccatcher) |
+| [mongodb](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-mongodb.html) |                   Writes events to MongoDB                   | [logstash-output-mongodb](https://github.com/logstash-plugins/logstash-output-mongodb) |
+| [nagios](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-nagios.html) |            Sends passive check results to Nagios             | [logstash-output-nagios](https://github.com/logstash-plugins/logstash-output-nagios) |
+| [nagios_nsca](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-nagios_nsca.html) | Sends passive check results to Nagios using the NSCA protocol | [logstash-output-nagios_nsca](https://github.com/logstash-plugins/logstash-output-nagios_nsca) |
+| [opentsdb](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-opentsdb.html) |                  Writes metrics to OpenTSDB                  | [logstash-output-opentsdb](https://github.com/logstash-plugins/logstash-output-opentsdb) |
+| [pagerduty](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-pagerduty.html) | Sends notifications based on preconfigured services and escalation policies | [logstash-output-pagerduty](https://github.com/logstash-plugins/logstash-output-pagerduty) |
+| [pipe](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-pipe.html) |       Pipes events to another program’s standard input       | [logstash-output-pipe](https://github.com/logstash-plugins/logstash-output-pipe) |
+| [rabbitmq](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-rabbitmq.html) |             Pushes events to a RabbitMQ exchange             | [logstash-integration-rabbitmq](https://github.com/logstash-plugins/logstash-integration-rabbitmq) |
+| [redis](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-redis.html) |   Sends events to a Redis queue using the `RPUSH` command    | [logstash-output-redis](https://github.com/logstash-plugins/logstash-output-redis) |
+| [redmine](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-redmine.html) |            Creates tickets using the Redmine API             | [logstash-output-redmine](https://github.com/logstash-plugins/logstash-output-redmine) |
+| [riak](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-riak.html) |    Writes events to the Riak distributed key/value store     | [logstash-output-riak](https://github.com/logstash-plugins/logstash-output-riak) |
+| [riemann](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-riemann.html) |                   Sends metrics to Riemann                   | [logstash-output-riemann](https://github.com/logstash-plugins/logstash-output-riemann) |
+| [s3](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-s3.html) |  Sends Logstash events to the Amazon Simple Storage Service  | [logstash-output-s3](https://github.com/logstash-plugins/logstash-output-s3) |
+| [sink](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-sink.html) |                 Discards any events received                 | [core plugin](https://github.com/elastic/logstash/blob/8.2/logstash-core/src/main/java/org/logstash/plugins/outputs/Sink.java) |
+| [sns](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-sns.html) |     Sends events to Amazon’s Simple Notification Service     | [logstash-output-sns](https://github.com/logstash-plugins/logstash-output-sns) |
+| [solr_http](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-solr_http.html) |               Stores and indexes logs in Solr                | [logstash-output-solr_http](https://github.com/logstash-plugins/logstash-output-solr_http) |
+| [sqs](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-sqs.html) | Pushes events to an Amazon Web Services Simple Queue Service queue | [logstash-output-sqs](https://github.com/logstash-plugins/logstash-output-sqs) |
+| [statsd](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-statsd.html) |       Sends metrics using the `statsd` network daemon        | [logstash-output-statsd](https://github.com/logstash-plugins/logstash-output-statsd) |
+| [stdout](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-stdout.html) |             Prints events to the standard output             | [logstash-output-stdout](https://github.com/logstash-plugins/logstash-output-stdout) |
+| [stomp](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-stomp.html) |            Writes events using the STOMP protocol            | [logstash-output-stomp](https://github.com/logstash-plugins/logstash-output-stomp) |
+| [syslog](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-syslog.html) |              Sends events to a `syslog` server               | [logstash-output-syslog](https://github.com/logstash-plugins/logstash-output-syslog) |
+| [tcp](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-tcp.html) |               Writes events over a TCP socket                | [logstash-output-tcp](https://github.com/logstash-plugins/logstash-output-tcp) |
+| [timber](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-timber.html) |        Sends events to the Timber.io logging service         | [logstash-output-timber](https://github.com/logstash-plugins/logstash-output-timber) |
+| [udp](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-udp.html) |                    Sends events over UDP                     | [logstash-output-udp](https://github.com/logstash-plugins/logstash-output-udp) |
+| [webhdfs](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-webhdfs.html) |  Sends Logstash events to HDFS using the `webhdfs` REST API  | [logstash-output-webhdfs](https://github.com/logstash-plugins/logstash-output-webhdfs) |
+| [websocket](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-websocket.html) |              Publishes messages to a websocket               | [logstash-output-websocket](https://github.com/logstash-plugins/logstash-output-websocket) |
+| [workplace_search](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-elastic_workplace_search.html) | Sends events to the [Elastic Workplace Search](https://www.elastic.co/enterprise-search) solution | [logstash-integration-elastic_enterprise_search](https://github.com/logstash-plugins/logstash-output-elastic_app_search) |
+| [xmpp](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-xmpp.html) |                    Posts events over XMPP                    | [logstash-output-xmpp](https://github.com/logstash-plugins/logstash-output-xmpp) |
+| [zabbix](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-zabbix.html) |               Sends events to a Zabbix server                | [logstash-output-zabbix](https://github.com/logstash-plugins/logstash-output-zabbix) |
+
+
+
+
+
+### 输出到标准输出
+
+```
+output {
+    stdout {
+        codec => rubydebug
+    }
+}
+```
+
+
+
+
+
+### 保存为文件
+
+```
+output {
+    file {
+        path => "/data/log/%{+yyyy-MM-dd}/%{host}_%{+HH}.log"
+    }
+}
+```
+
+
+
+
+
+### 输出到elasticsearch
+
+```
+output {
+    elasticsearch {
+        host => ["127.0.0.1:9200","127.0.0.1:9201"]
+        index => "logstash-%{+YYYY.MM.dd}"       
+    }
+}
+```
+
+
+
+- host：是一个数组类型的值，后面跟的值是elasticsearch节点的地址与端口，默认端口是9200。可添加多个地址。
+- index：写入elasticsearch的索引的名称，这里可以使用变量。Logstash提供了%{+YYYY.MM.dd}这种写法。在语法解析的时候，看到以+ 号开头的，就会自动认为后面是时间格式，尝试用时间格式来解析后续字符串。这种以天为单位分割的写法，可以很容易的删除老的数据或者搜索指定时间范围内的数据。此外，注意索引名中不能有大写字母。
+- manage_template:用来设置是否开启logstash自动管理模板功能，如果设置为false将关闭自动管理模板功能。如果我们自定义了模板，那么应该设置为false。
+- template_name:这个配置项用来设置在Elasticsearch中模板的名称。
+
+
+
+## 示例
+
+```
+input {
+    file {
+        path => ["D:/ES/logstash-7.3.0/nginx.log"]        
+        start_position => "beginning"
+    }
+}
+
+filter {
+    grok {
+        match => { "message" => "%{IP:clientip}\ \[%{HTTPDATE:timestamp}\]\ %{QS:referrer}\ %{NUMBER:response}\ %{NUMBER:bytes}" }
+        remove_field => [ "message" ]
+   }
+	date {
+        match => ["timestamp", "dd/MMM/yyyy:HH:mm:ss Z"]
+    }
+	mutate {
+           rename => { "response" => "response_new" }
+           convert => [ "response","float" ]
+           gsub => ["referrer","\"",""]
+           remove_field => ["timestamp"]
+           split => ["clientip", "."]
+        }
+}
+
+output {
+    stdout {
+        codec => "rubydebug"
+    }
+
+elasticsearch {
+    host => ["localhost:9200"]
+    index => "logstash-%{+YYYY.MM.dd}"       
+}
+
+}
+```
+
+
+
+
+
+
+
+# elasticsearch集群
+
