@@ -23256,6 +23256,7 @@ logstash.bat -f ../config/test.conf
 ## Logstash输入插件
 
 
+
 | Plugin                                                       | Description                                                  | Github repository                                            |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | [azure_event_hubs](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-azure_event_hubs.html) | Receives events from Azure Event Hubs                        | [azure_event_hubs](https://github.com/logstash-plugins/logstash-input-azure_event_hubs) |
@@ -23775,6 +23776,976 @@ elasticsearch {
 
 }
 ```
+
+
+
+
+
+
+
+
+
+# 高亮显示
+
+语法：
+
+```json
+GET /{index}/_search
+{
+  "query": {
+    "match": {
+      "FIELD": "TEXT" // 查询条件，高亮一定要使用全文检索查询
+    }
+  },
+  "highlight": {
+    "fields": { // 指定要高亮的字段
+      "FIELD": {
+        "pre_tags": "<em>",  // 用来标记高亮字段的前置标签
+        "post_tags": "</em>" // 用来标记高亮字段的后置标签
+      }
+    }
+  }
+}
+```
+
+
+
+- 高亮是对关键字高亮，因此**搜索条件必须带有关键字**，而不能是范围这样的查询。
+- 默认情况下，**高亮的字段，必须与搜索指定的字段一致**，否则无法高亮
+- 如果要对非搜索字段高亮，则需要添加一个属性：required_field_match=false
+
+
+
+```json
+GET /tvs/_search
+{
+  "query": {"match": {
+    "brand": "小米"
+  }},
+  "highlight": {
+    "fields": {
+      "brand": {
+        
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 5,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0033021,
+    "hits" : [
+      {
+        "_index" : "tvs",
+        "_id" : "7aouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 3000,
+          "color" : "绿色",
+          "brand" : "小米",
+          "sold_date" : "2019-05-18"
+        },
+        "highlight" : {
+          "brand" : [
+            "<em>小米</em>"
+          ]
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "8qouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 2500,
+          "color" : "蓝色",
+          "brand" : "小米",
+          "sold_date" : "2020-02-12"
+        },
+        "highlight" : {
+          "brand" : [
+            "<em>小米</em>"
+          ]
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "86ouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 4500,
+          "color" : "绿色",
+          "brand" : "小米",
+          "sold_date" : "2020-04-22"
+        },
+        "highlight" : {
+          "brand" : [
+            "<em>小米</em>"
+          ]
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "9qouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 8500,
+          "color" : "红色",
+          "brand" : "小米",
+          "sold_date" : "2020-05-19"
+        },
+        "highlight" : {
+          "brand" : [
+            "<em>小米</em>"
+          ]
+        }
+      },
+      {
+        "_index" : "tvs",
+        "_id" : "-KouDoEBEpQthbP41cfj",
+        "_score" : 1.0033021,
+        "_source" : {
+          "price" : 4800,
+          "color" : "黑色",
+          "brand" : "小米",
+          "sold_date" : "2020-06-10"
+        },
+        "highlight" : {
+          "brand" : [
+            "<em>小米</em>"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+```json
+GET /book/_search
+{
+  "query": {
+    "match": {
+      "description": "java"
+    }
+  },
+  "highlight": {
+    "fields": {
+      "description": {
+        
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 2,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 4,
+      "relation" : "eq"
+    },
+    "max_score" : 0.4745544,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 0.4745544,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        },
+        "highlight" : {
+          "description" : [
+            "spring 在<em>java</em>领域非常流行，<em>java</em>程序员都在用。"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 0.33773077,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        },
+        "highlight" : {
+          "description" : [
+            "<em>java</em>语言是世界第一编程语言，在软件开发领域使用人数最多。"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 0.33773077,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        },
+        "highlight" : {
+          "description" : [
+            "<em>java</em>语言是世界第一编程语言，在软件开发领域使用人数最多。"
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 0.33773077,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        },
+        "highlight" : {
+          "description" : [
+            "<em>java</em>语言是世界第一编程语言，在软件开发领域使用人数最多。"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+
+
+自定义标签：
+
+```json
+GET /book/_search
+{
+  "query": {
+    "multi_match": 
+    {
+      "query": "java",
+      "fields": ["name","description"]
+    }
+  },
+  "highlight": 
+  {
+    "fields": 
+    {
+      "description":
+      {
+        "pre_tags": "<div class=\"s\">",
+        "post_tags": "</div>",
+        "require_field_match": "false"
+      },
+      "name": 
+      {
+        "pre_tags": "<div class=\"s\">",
+        "post_tags": "</div>",
+        "require_field_match": "false"
+      }
+    }
+  }
+}
+```
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 4,
+      "relation" : "eq"
+    },
+    "max_score" : 0.52048135,
+    "hits" : [
+      {
+        "_index" : "book",
+        "_id" : "2",
+        "_score" : 0.52048135,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2019-08-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "java",
+            "dev"
+          ]
+        },
+        "highlight" : {
+          "name" : [
+            """<div class="s">java</div>编程思想"""
+          ],
+          "description" : [
+            """<div class="s">java</div>语言是世界第一编程语言，在软件开发领域使用人数最多。"""
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "5",
+        "_score" : 0.52048135,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        },
+        "highlight" : {
+          "name" : [
+            """<div class="s">java</div>编程思想"""
+          ],
+          "description" : [
+            """<div class="s">java</div>语言是世界第一编程语言，在软件开发领域使用人数最多。"""
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "6",
+        "_score" : 0.52048135,
+        "_source" : {
+          "name" : "java编程思想",
+          "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+          "studymodel" : "201001",
+          "price" : 68.6,
+          "timestamp" : "2022-5-25 19:11:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "bootstrap",
+            "dev"
+          ]
+        },
+        "highlight" : {
+          "name" : [
+            """<div class="s">java</div>编程思想"""
+          ],
+          "description" : [
+            """<div class="s">java</div>语言是世界第一编程语言，在软件开发领域使用人数最多。"""
+          ]
+        }
+      },
+      {
+        "_index" : "book",
+        "_id" : "3",
+        "_score" : 0.4745544,
+        "_source" : {
+          "name" : "spring开发基础",
+          "description" : "spring 在java领域非常流行，java程序员都在用。",
+          "studymodel" : "201001",
+          "price" : 78.6,
+          "timestamp" : "2019-08-24 19:21:35",
+          "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+          "tags" : [
+            "spring",
+            "java"
+          ]
+        },
+        "highlight" : {
+          "description" : [
+            """spring 在<div class="s">java</div>领域非常流行，<div class="s">java</div>程序员都在用。"""
+          ]
+        }
+      }
+    ]
+  }
+}
+
+```
+
+
+
+
+
+## java API实现高亮显示
+
+
+
+```java
+package mao.elasticsearch_implement_highlight;
+
+import org.apache.http.HttpHost;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Project name(项目名称)：elasticsearch_Implement_highlight
+ * Package(包名): mao.elasticsearch_implement_highlight
+ * Class(类名): ElasticSearchTest
+ * Author(作者）: mao
+ * Author QQ：1296193245
+ * GitHub：https://github.com/maomao124/
+ * Date(创建日期)： 2022/6/1
+ * Time(创建时间)： 13:55
+ * Version(版本): 1.0
+ * Description(描述)： 测试高亮
+ */
+
+
+@SpringBootTest
+public class ElasticSearchTest
+{
+    private static RestHighLevelClient client;
+
+    /**
+     * Before all.
+     */
+    @BeforeAll
+    static void beforeAll()
+    {
+        client = new RestHighLevelClient(RestClient.builder(
+                new HttpHost("localhost", 9200, "http")));
+    }
+
+    /**
+     * After all.
+     *
+     * @throws IOException the io exception
+     */
+    @AfterAll
+    static void afterAll() throws IOException
+    {
+        client.close();
+    }
+
+    /**
+     * 测试高亮
+     * <p>
+     * 请求内容：
+     * <pre>
+     *
+     * GET /book/_search
+     * {
+     *   "query": {
+     *     "multi_match":
+     *     {
+     *       "query": "java",
+     *       "fields": ["name","description"]
+     *     }
+     *   },
+     *   "highlight":
+     *   {
+     *     "fields":
+     *     {
+     *       "description":
+     *       {
+     *         "pre_tags": "<div class=\"s\">",
+     *         "post_tags": "</div>",
+     *         "require_field_match": "false"
+     *       },
+     *       "name":
+     *       {
+     *         "pre_tags": "<div class=\"s\">",
+     *         "post_tags": "</div>",
+     *         "require_field_match": "false"
+     *       }
+     *     }
+     *   }
+     * }
+     *
+     * </pre>
+     * <p>
+     * 结果：
+     * <pre>
+     *
+     * {
+     *   "took" : 1,
+     *   "timed_out" : false,
+     *   "_shards" : {
+     *     "total" : 1,
+     *     "successful" : 1,
+     *     "skipped" : 0,
+     *     "failed" : 0
+     *   },
+     *   "hits" : {
+     *     "total" : {
+     *       "value" : 4,
+     *       "relation" : "eq"
+     *     },
+     *     "max_score" : 0.52048135,
+     *     "hits" : [
+     *       {
+     *         "_index" : "book",
+     *         "_id" : "2",
+     *         "_score" : 0.52048135,
+     *         "_source" : {
+     *           "name" : "java编程思想",
+     *           "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+     *           "studymodel" : "201001",
+     *           "price" : 68.6,
+     *           "timestamp" : "2019-08-25 19:11:35",
+     *           "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+     *           "tags" : [
+     *             "java",
+     *             "dev"
+     *           ]
+     *         },
+     *         "highlight" : {
+     *           "name" : [
+     *             """<div class="s">java</div>编程思想"""
+     *           ],
+     *           "description" : [
+     *             """<div class="s">java</div>语言是世界第一编程语言，在软件开发领域使用人数最多。"""
+     *           ]
+     *         }
+     *       },
+     *       {
+     *         "_index" : "book",
+     *         "_id" : "5",
+     *         "_score" : 0.52048135,
+     *         "_source" : {
+     *           "name" : "java编程思想",
+     *           "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+     *           "studymodel" : "201001",
+     *           "price" : 68.6,
+     *           "timestamp" : "2022-5-25 19:11:35",
+     *           "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+     *           "tags" : [
+     *             "bootstrap",
+     *             "dev"
+     *           ]
+     *         },
+     *         "highlight" : {
+     *           "name" : [
+     *             """<div class="s">java</div>编程思想"""
+     *           ],
+     *           "description" : [
+     *             """<div class="s">java</div>语言是世界第一编程语言，在软件开发领域使用人数最多。"""
+     *           ]
+     *         }
+     *       },
+     *       {
+     *         "_index" : "book",
+     *         "_id" : "6",
+     *         "_score" : 0.52048135,
+     *         "_source" : {
+     *           "name" : "java编程思想",
+     *           "description" : "java语言是世界第一编程语言，在软件开发领域使用人数最多。",
+     *           "studymodel" : "201001",
+     *           "price" : 68.6,
+     *           "timestamp" : "2022-5-25 19:11:35",
+     *           "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+     *           "tags" : [
+     *             "bootstrap",
+     *             "dev"
+     *           ]
+     *         },
+     *         "highlight" : {
+     *           "name" : [
+     *             """<div class="s">java</div>编程思想"""
+     *           ],
+     *           "description" : [
+     *             """<div class="s">java</div>语言是世界第一编程语言，在软件开发领域使用人数最多。"""
+     *           ]
+     *         }
+     *       },
+     *       {
+     *         "_index" : "book",
+     *         "_id" : "3",
+     *         "_score" : 0.4745544,
+     *         "_source" : {
+     *           "name" : "spring开发基础",
+     *           "description" : "spring 在java领域非常流行，java程序员都在用。",
+     *           "studymodel" : "201001",
+     *           "price" : 78.6,
+     *           "timestamp" : "2019-08-24 19:21:35",
+     *           "pic" : "group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg",
+     *           "tags" : [
+     *             "spring",
+     *             "java"
+     *           ]
+     *         },
+     *         "highlight" : {
+     *           "description" : [
+     *             """spring 在<div class="s">java</div>领域非常流行，<div class="s">java</div>程序员都在用。"""
+     *           ]
+     *         }
+     *       }
+     *     ]
+     *   }
+     * }
+     *
+     * </pre>
+     * <p>
+     * 程序结果：
+     * <pre>
+     *
+     * 总数：4
+     * 最大分数：0.52048135
+     * 数据：
+     * ----price：68.6
+     * ----studymodel：201001
+     * ----name：java编程思想
+     * ----description：java语言是世界第一编程语言，在软件开发领域使用人数最多。
+     * ----pic：group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg
+     * ----timestamp：2019-08-25 19:11:35
+     * ----tags：[java, dev]
+     * ------高亮：
+     * ------name：<div class=\"s\">java</div>编程思想
+     * ------description：<div class=\"s\">java</div>语言是世界第一编程语言，在软件开发领域使用人数最多。
+     * -------------------------------------
+     * ----price：68.6
+     * ----studymodel：201001
+     * ----name：java编程思想
+     * ----description：java语言是世界第一编程语言，在软件开发领域使用人数最多。
+     * ----pic：group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg
+     * ----timestamp：2022-5-25 19:11:35
+     * ----tags：[bootstrap, dev]
+     * ------高亮：
+     * ------name：<div class=\"s\">java</div>编程思想
+     * ------description：<div class=\"s\">java</div>语言是世界第一编程语言，在软件开发领域使用人数最多。
+     * -------------------------------------
+     * ----price：68.6
+     * ----studymodel：201001
+     * ----name：java编程思想
+     * ----description：java语言是世界第一编程语言，在软件开发领域使用人数最多。
+     * ----pic：group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg
+     * ----timestamp：2022-5-25 19:11:35
+     * ----tags：[bootstrap, dev]
+     * ------高亮：
+     * ------name：<div class=\"s\">java</div>编程思想
+     * ------description：<div class=\"s\">java</div>语言是世界第一编程语言，在软件开发领域使用人数最多。
+     * -------------------------------------
+     * ----price：78.6
+     * ----studymodel：201001
+     * ----name：spring开发基础
+     * ----description：spring 在java领域非常流行，java程序员都在用。
+     * ----pic：group1/M00/00/00/wKhlQFs6RCeAY0pHAAJx5ZjNDEM428.jpg
+     * ----timestamp：2019-08-24 19:21:35
+     * ----tags：[spring, java]
+     * ------高亮：
+     * ------description：spring 在<div class=\"s\">java</div>领域非常流行，<div class=\"s\">java</div>程序员都在用。
+     * -------------------------------------
+     *
+     * </pre>
+     *
+     * @throws Exception Exception
+     */
+    @Test
+    void highlight() throws Exception
+    {
+        //构建请求
+        SearchRequest searchRequest = new SearchRequest("book");
+        //构建请求体
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        //查询
+        searchSourceBuilder.query(QueryBuilders.multiMatchQuery("java", "name", "description"));
+        //高亮
+        /*HighlightBuilder highlightBuilder = new HighlightBuilder();
+        List<HighlightBuilder.Field> fields = highlightBuilder.fields();
+        fields.add(new HighlightBuilder.Field("name")
+                .requireFieldMatch(false)
+                .preTags("<div class=\\\"s\\\">")
+                .postTags("</div>"));
+        fields.add(new HighlightBuilder.Field("description")
+                .requireFieldMatch(false)
+                .preTags("<div class=\\\"s\\\">")
+                .postTags("</div>"));
+        searchSourceBuilder.highlighter(highlightBuilder);*/
+
+        //方法二
+        searchSourceBuilder.highlighter(new HighlightBuilder()
+                .field("name")
+                .requireFieldMatch(false)
+                .preTags("<div class=\\\"s\\\">")
+                .postTags("</div>")
+                .field("description")
+                .requireFieldMatch(false)
+                .preTags("<div class=\\\"s\\\">")
+                .postTags("</div>"));
+
+        //放入到请求中
+        searchRequest.source(searchSourceBuilder);
+        //发起请求
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+        //获取数据
+        SearchHits hits = searchResponse.getHits();
+        //总数
+        long total = hits.getTotalHits().value;
+        //最大分数
+        float maxScore = hits.getMaxScore();
+        //数据
+        SearchHit[] hitsHits = hits.getHits();
+        //打印
+        System.out.println("总数：" + total);
+        System.out.println("最大分数：" + maxScore);
+        System.out.println("数据：");
+        for (SearchHit hitsHit : hitsHits)
+        {
+            //数据
+            Map<String, Object> sourceAsMap = hitsHit.getSourceAsMap();
+            for (String key : sourceAsMap.keySet())
+            {
+                Object value = sourceAsMap.get(key);
+                System.out.println("----" + key + "：" + value);
+            }
+            System.out.println("------高亮：");
+            Map<String, HighlightField> highlightFields = hitsHit.getHighlightFields();
+            for (String key : highlightFields.keySet())
+            {
+                HighlightField highlightField = highlightFields.get(key);
+                String name = highlightField.getName();
+                String field = highlightField.getFragments()[0].string();
+                System.out.println("------" + name + "：" + field);
+            }
+            System.out.println("-------------------------------------");
+
+        }
+
+    }
+}
+
+```
+
+
+
+
+
+# 地理坐标
+
+使用场景：
+
+* 搜索我附近的酒店
+* 搜索我附近的出租车
+* 搜索我附近的人
+* ...
+
+
+
+```json
+PUT /my_locations
+{
+  "mappings": {
+    "properties": {
+      "pin": {
+        "properties": {
+          "location": {
+            "type": "geo_point"
+          }
+        }
+      }
+    }
+  }
+}
+
+PUT /my_locations/_doc/1
+{
+  "pin": {
+    "location": {
+      "lat": 40.12,
+      "lon": -71.34
+    }
+  }
+}
+
+PUT /my_geoshapes
+{
+  "mappings": {
+    "properties": {
+      "pin": {
+        "properties": {
+          "location": {
+            "type": "geo_shape"
+          }
+        }
+      }
+    }
+  }
+}
+
+PUT /my_geoshapes/_doc/1
+{
+  "pin": {
+    "location": {
+      "type" : "polygon",
+      "coordinates" : [[[13.0 ,51.5], [15.0, 51.5], [15.0, 54.0], [13.0, 54.0], [13.0 ,51.5]]]
+    }
+  }
+}
+```
+
+
+
+
+
+## 矩形范围查询
+
+查询时，需要指定矩形的**左上**、**右下**两个点的坐标，然后画出一个矩形，落在该矩形内的都是符合条件的点。
+
+```json
+GET /indexName/_search
+{
+  "query": {
+    "geo_bounding_box": {
+      "FIELD": {
+        "top_left": { // 左上点
+          "lat": 31.1,
+          "lon": 121.5
+        },
+        "bottom_right": { // 右下点
+          "lat": 30.9,
+          "lon": 121.7
+        }
+      }
+    }
+  }
+}
+```
+
+
+
+## 附近查询
+
+附近查询，也叫做距离查询（geo_distance）：查询到指定中心点小于某个距离值的所有文档。
+
+```json
+GET /indexName/_search
+{
+  "query": {
+    "geo_distance": {
+      "distance": "15km", // 半径
+      "FIELD": "31.21,121.5" // 圆心
+    }
+  }
+}
+```
+
+
+
+## 排序
+
+```json
+GET /indexName/_search
+{
+  "query": {
+    "match_all": {}
+  },
+  "sort": [
+    {
+      "_geo_distance" : {
+          "FIELD" : "纬度，经度", // 文档中geo_point类型的字段名、目标坐标点
+          "order" : "asc", // 排序方式
+          "unit" : "km" // 排序的距离单位
+      }
+    }
+  ]
+}
+```
+
+
+
+- 指定一个坐标，作为目标点
+- 计算每一个文档中，指定字段（必须是geo_point类型）的坐标 到目标点的距离是多少
+- 根据距离排序
+
+
+
+
+
+
+
+# 自动补全
+
+
+
+
+
+
+
+# 数据同步
 
 
 
