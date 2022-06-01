@@ -24739,7 +24739,505 @@ GET /indexName/_search
 
 # 自动补全
 
+## 拼音分词器
 
+要实现根据字母做补全，就必须对文档按照拼音分词。
+
+拼音分词插件地址：https://github.com/medcl/elasticsearch-analysis-pinyin
+
+测试：
+
+```json
+POST /_analyze
+{
+  "text": "测试字段",
+  "analyzer": "pinyin"
+}
+```
+
+
+
+## 自定义分词器
+
+elasticsearch中分词器（analyzer）的组成包含三部分：
+
+- character filters：在tokenizer之前对文本进行处理。例如删除字符、替换字符
+- tokenizer：将文本按照一定的规则切割成词条（term）。例如keyword，就是不分词；还有ik_smart
+- tokenizer filter：将tokenizer输出的词条做进一步处理。例如大小写转换、同义词处理、拼音处理等
+
+自定义分词器：
+
+```json
+PUT /test
+{
+  "settings": {
+    "analysis": {
+      "analyzer": { // 自定义分词器
+        "my_analyzer": {  // 分词器名称
+          "tokenizer": "ik_max_word",
+          "filter": "py"
+        }
+      },
+      "filter": { // 自定义tokenizer filter
+        "py": { // 过滤器名称
+          "type": "pinyin", // 过滤器类型，这里是pinyin
+		  "keep_full_pinyin": false,
+          "keep_joined_full_pinyin": true,
+          "keep_original": true,
+          "limit_first_letter_length": 16,
+          "remove_duplicated_term": true,
+          "none_chinese_pinyin_tokenize": false
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "text",
+        "analyzer": "my_analyzer",
+        "search_analyzer": "ik_smart"
+      }
+    }
+  }
+}
+```
+
+
+
+
+
+## 自动补全查询
+
+elasticsearch提供了[Completion Suggester](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-suggesters.html)查询来实现自动补全功能。这个查询会匹配以用户输入内容开头的词条并返回。为了提高补全查询的效率，对于文档中字段的类型有一些约束：
+
+- 参与补全查询的字段必须是completion类型。
+- 字段的内容一般是用来补全的多个词条形成的数组。
+
+
+
+示例：
+
+```json
+put test2
+{
+  "mappings":
+  {
+    "properties":
+    {
+      "title":
+      {
+        "type":"completion"
+      }
+    }
+  }
+}
+
+```
+
+
+
+插入数据：
+
+```json
+POST test/_doc
+{
+ "title": ["Sony", "WH-1000XM3"]
+}
+
+POST test/_doc
+{
+ "title": ["SK-II", "PITERA"]
+}
+
+POST test/_doc
+{
+ "title": ["Nintendo", "switch"]
+}
+```
+
+
+
+查询：
+
+```json
+GET /test2/_search
+{
+  "suggest": 
+  {
+    "title_suggest": 
+    {
+      "text": "s",
+      "completion":
+      {
+        "field": "title",
+        "skip_duplicates": true,
+        "size": 10
+      }
+    }
+  }
+}
+```
+
+
+
+* text：关键字
+* field：补全查询的字段
+* skip_duplicates：是否跳过重复的
+* size：只获取前n条结果
+
+
+
+结果：
+
+```json
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 0,
+      "relation" : "eq"
+    },
+    "max_score" : null,
+    "hits" : [ ]
+  },
+  "suggest" : {
+    "title_suggest" : [
+      {
+        "text" : "s",
+        "offset" : 0,
+        "length" : 1,
+        "options" : [
+          {
+            "text" : "SK-II",
+            "_index" : "test2",
+            "_id" : "nVUsH4EBfwatmgrgIAsV",
+            "_score" : 1.0,
+            "_source" : {
+              "title" : [
+                "SK-II",
+                "PITERA"
+              ]
+            }
+          },
+          {
+            "text" : "Sony",
+            "_index" : "test2",
+            "_id" : "nFUsH4EBfwatmgrgFgu5",
+            "_score" : 1.0,
+            "_source" : {
+              "title" : [
+                "Sony",
+                "WH-1000XM3"
+              ]
+            }
+          },
+          {
+            "text" : "switch",
+            "_index" : "test2",
+            "_id" : "nlUsH4EBfwatmgrgKAsR",
+            "_score" : 1.0,
+            "_source" : {
+              "title" : [
+                "Nintendo",
+                "switch"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+
+```
+
+
+
+
+
+
+
+## java API 实现自动补全
+
+
+
+```java
+package mao.elasticsearch_implement_automatic_completion;
+
+import org.apache.http.HttpHost;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Scanner;
+
+/**
+ * Project name(项目名称)：elasticsearch_Implement_automatic_completion
+ * Package(包名): mao.elasticsearch_implement_automatic_completion
+ * Class(类名): ElasticSearchTest
+ * Author(作者）: mao
+ * Author QQ：1296193245
+ * GitHub：https://github.com/maomao124/
+ * Date(创建日期)： 2022/6/1
+ * Time(创建时间)： 20:19
+ * Version(版本): 1.0
+ * Description(描述)： 测试自动补全
+ */
+
+
+@SpringBootTest
+public class ElasticSearchTest
+{
+
+    private static RestHighLevelClient client;
+
+    /**
+     * Before all.
+     */
+    @BeforeAll
+    static void beforeAll()
+    {
+        client = new RestHighLevelClient(RestClient.builder(
+                new HttpHost("localhost", 9200, "http")
+        ));
+    }
+
+    /**
+     * After all.
+     *
+     * @throws IOException the io exception
+     */
+    @AfterAll
+    static void afterAll() throws IOException
+    {
+        client.close();
+    }
+
+    /**
+     * 测试自动补全功能
+     * <p>
+     * 请求内容：
+     * <pre>
+     *
+     * GET /test2/_search
+     * {
+     *   "suggest":
+     *   {
+     *     "title_suggest":
+     *     {
+     *       "text": "s",
+     *       "completion":
+     *       {
+     *         "field": "title",
+     *         "skip_duplicates": true,
+     *         "size": 10
+     *       }
+     *     }
+     *   }
+     * }
+     *
+     * </pre>
+     * <p>
+     * 结果：
+     * <pre>
+     *
+     * {
+     *   "took" : 1,
+     *   "timed_out" : false,
+     *   "_shards" : {
+     *     "total" : 1,
+     *     "successful" : 1,
+     *     "skipped" : 0,
+     *     "failed" : 0
+     *   },
+     *   "hits" : {
+     *     "total" : {
+     *       "value" : 0,
+     *       "relation" : "eq"
+     *     },
+     *     "max_score" : null,
+     *     "hits" : [ ]
+     *   },
+     *   "suggest" : {
+     *     "title_suggest" : [
+     *       {
+     *         "text" : "s",
+     *         "offset" : 0,
+     *         "length" : 1,
+     *         "options" : [
+     *           {
+     *             "text" : "SK-II",
+     *             "_index" : "test2",
+     *             "_id" : "nVUsH4EBfwatmgrgIAsV",
+     *             "_score" : 1.0,
+     *             "_source" : {
+     *               "title" : [
+     *                 "SK-II",
+     *                 "PITERA"
+     *               ]
+     *             }
+     *           },
+     *           {
+     *             "text" : "Sony",
+     *             "_index" : "test2",
+     *             "_id" : "nFUsH4EBfwatmgrgFgu5",
+     *             "_score" : 1.0,
+     *             "_source" : {
+     *               "title" : [
+     *                 "Sony",
+     *                 "WH-1000XM3"
+     *               ]
+     *             }
+     *           },
+     *           {
+     *             "text" : "switch",
+     *             "_index" : "test2",
+     *             "_id" : "nlUsH4EBfwatmgrgKAsR",
+     *             "_score" : 1.0,
+     *             "_source" : {
+     *               "title" : [
+     *                 "Nintendo",
+     *                 "switch"
+     *               ]
+     *             }
+     *           }
+     *         ]
+     *       }
+     *     ]
+     *   }
+     * }
+     *
+     * </pre>
+     * <p>
+     * 程序结果：
+     * <pre>
+     *
+     * 补全字段：s
+     * 结果：
+     * -->SK-II
+     * -->Sony
+     * -->switch
+     *
+     * </pre>
+     *
+     * @throws Exception Exception
+     */
+    @Test
+    void automatic_completion() throws Exception
+    {
+        //构建请求
+        SearchRequest searchRequest = new SearchRequest("test2");
+        //构建请求体
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        //补全
+        searchSourceBuilder.suggest(new SuggestBuilder().addSuggestion(
+                "title_suggest",
+                new CompletionSuggestionBuilder("title").text("s").skipDuplicates(true).size(10)));
+        //放入到请求中
+        searchRequest.source(searchSourceBuilder);
+        //发起请求
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+        //获取数据
+        //获取suggest部分
+        Suggest suggest = searchResponse.getSuggest();
+        Suggest.Suggestion<? extends Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option>>
+                title_suggest = suggest.getSuggestion("title_suggest");
+        List<? extends Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option>> entries = title_suggest.getEntries();
+        for (Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option> entry : entries)
+        {
+            String text = entry.getText().string();
+            System.out.println("补全字段：" + text);
+            System.out.println("结果：");
+            for (Suggest.Suggestion.Entry.Option option : entry)
+            {
+                String result = option.getText().string();
+                System.out.println("-->" + result);
+            }
+        }
+    }
+
+
+    /**
+     * 自动补全
+     *
+     * @param automaticCompletionText 自动补全的文本
+     * @throws Exception Exception
+     */
+    void automaticCompletionService(String automaticCompletionText) throws Exception
+    {
+        //构建请求
+        SearchRequest searchRequest = new SearchRequest("test2");
+        //构建请求体
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        //补全
+        searchSourceBuilder.suggest(new SuggestBuilder().addSuggestion(
+                "title_suggest",
+                new CompletionSuggestionBuilder("title").text(automaticCompletionText).skipDuplicates(true).size(10)));
+        //放入到请求中
+        searchRequest.source(searchSourceBuilder);
+        //发起请求
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+        //获取数据
+        //获取suggest部分
+        Suggest suggest = searchResponse.getSuggest();
+        Suggest.Suggestion<? extends Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option>>
+                title_suggest = suggest.getSuggestion("title_suggest");
+        List<? extends Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option>> entries = title_suggest.getEntries();
+        for (Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option> entry : entries)
+        {
+            String text = entry.getText().string();
+            System.out.println("补全字段：" + text);
+            System.out.println("结果：");
+            for (Suggest.Suggestion.Entry.Option option : entry)
+            {
+                String result = option.getText().string();
+                System.out.println("-->" + result);
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        beforeAll();
+        while (true)
+        {
+            Scanner input = new Scanner(System.in);
+            System.out.print("请输入要补全的关键字：");
+            String inputString = input.next();
+            if (inputString.equals("exit"))
+            {
+                afterAll();
+                return;
+            }
+            new ElasticSearchTest().automaticCompletionService(inputString);
+            System.out.println();
+            System.out.println("--------");
+            System.out.println();
+        }
+    }
+}
+
+```
 
 
 
@@ -24747,11 +25245,75 @@ GET /indexName/_search
 
 # 数据同步
 
+一般情况下，elasticsearch中的数据来自于mysql数据库，因此mysql数据发生改变时，elasticsearch也必须跟着改变，这个就是elasticsearch与mysql之间的**数据同步**。
 
 
 
+数据同步方案有：
+
+- 同步调用
+- 异步通知
+- 监听binlog
+- 使用Logstash
+
+
+
+## 同步调用
+
+对数据库进行修改操作时，同时修改elasticsearch
+
+## 异步通知
+
+数据库数据完成增、删、改后，发送MQ消息
+
+然后监听MQ，接收到消息后完成elasticsearch数据修改
+
+## 监听binlog
+
+给mysql开启binlog功能
+
+mysql完成增、删、改操作都会记录在binlog中
+
+使用canal监听binlog变化，实时更新elasticsearch中的内容
+
+
+
+## 选择
+
+方式一：同步调用
+
+- 优点：实现简单，粗暴
+- 缺点：业务耦合度高
+
+方式二：异步通知
+
+- 优点：低耦合，实现难度一般
+- 缺点：依赖mq的可靠性
+
+方式三：监听binlog
+
+- 优点：完全解除服务间耦合
+- 缺点：开启binlog增加数据库负担、实现复杂度高
+
+
+
+## java API 实现数据同步
+
+代码在实战学习笔记里
 
 
 
 # elasticsearch集群
+
+## windows实现
+
+
+
+## Docker实现
+
+
+
+
+
+## 集群脑裂问题
 
