@@ -25971,11 +25971,186 @@ http://127.0.0.1:9203/_cluster/health
 
 
 
+
+
+## windows集群一键启动脚本
+
+在elasticsearch-cluster目录下创建一个bat文件，输入以下命令
+
+```sh
+cd  ./elasticsearch1/bin
+start "elasticsearch1" elasticsearch.bat
+cd ./../../
+cd  ./elasticsearch2/bin
+start "elasticsearch2"  elasticsearch.bat
+cd ./../../
+cd  ./elasticsearch3/bin
+start "elasticsearch3"  elasticsearch.bat
+```
+
+保存。
+
+以后可以双击此文件来启动集群
+
+
+
 ## Docker实现
+
+
+
+### 1. 编写docker-compose文件
+
+```sh
+version: '2.2'
+services:
+  es01:
+    image: elasticsearch:7.12.1
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+  es02:
+    image: elasticsearch:7.12.1
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    ports:
+      - 9201:9200
+    networks:
+      - elastic
+  es03:
+    image: elasticsearch:7.12.1
+    container_name: es03
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+    ports:
+      - 9202:9200
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
+
+networks:
+  elastic:
+    driver: bridge
+```
+
+
+
+### 2. 修改linux系统权限
+
+修改`/etc/sysctl.conf`文件
+
+vi /etc/sysctl.conf
+
+添加下面的内容：
+
+```sh
+vm.max_map_count=262144
+```
+
+然后执行命令，让配置生效：
+
+```sh
+sysctl -p
+```
+
+
+
+### 3. 启动集群
+
+```sh
+docker-compose up -d
+```
+
+
 
 
 
 
 
 ## 集群脑裂问题
+
+
+
+* node.master：备选主节点：主节点可以管理和记录集群状态、决定分片在哪个节点、处理创建和删除索引库的请求
+* node.data：数据节点：存储数据、搜索、聚合、CRUD
+* node.ingest：数据存储之前的预处理
+* coordinating：上面3个参数都为false则为coordinating节点，路由请求到其它节点，合并其它节点处理的结果，返回给用户
+
+
+
+默认情况下，集群中的任何一个节点都同时具备上述四种角色。
+
+但是真实的集群一定要将集群职责分离：
+
+- master节点：对CPU要求高，但是内存要求第
+- data节点：对CPU和内存要求都高
+- coordinating节点：对网络带宽、CPU要求高
+
+职责分离可以让我们根据不同节点的需求分配不同的硬件去部署。而且避免业务之间的互相干扰。
+
+
+
+脑裂是因为集群中的节点失联导致的。
+
+例如一个集群中：
+
+* 主节点与其它节点失联：
+
+* 此时，node2和node3认为node1宕机，就会重新选主
+* 当node3当选后，集群继续对外提供服务，node2和node3自成集群，node1自成集群，两个集群数据不同步，出现数据差异
+* 当网络恢复后，因为集群中有两个master节点，集群状态的不一致，出现脑裂的情况
+
+
+
+### 解决
+
+解决脑裂的方案是，要求选票超过 ( eligible节点数量 + 1 ）/ 2 才能当选为主，因此eligible节点数量最好是奇数。对应配置项是discovery.zen.minimum_master_nodes，在es7.0以后，已经成为默认配置，因此一般不会发生脑裂问题
+
+例如：3个节点形成的集群，选票必须超过 （3 + 1） / 2 ，也就是2票。node3得到node2和node3的选票，当选为主。node1只有自己1票，没有当选。集群中依然只有1个主节点，没有出现脑裂。
+
+
+
+
+
+
+
+----
+
+end 
+
+----
+
+by mao
+
+2022/6/2
+
+----
 
